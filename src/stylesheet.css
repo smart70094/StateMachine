@@ -1,0 +1,8 @@
+#terminalPoint{
+	-fx-fill: WHITE;
+	-fx-stroke: BLACK;
+	-fx-opacity: 0.1;
+}
+#line{
+	-fx-stroke-width:2px;
+}
