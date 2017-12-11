@@ -1,29 +1,24 @@
+package Model;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class ArrowLineModel {
+public class Transition_V1 {
 	//起點與終點座標
-	double sx,sy,ex,ey;
+
 	//拖移時記錄的坐標
 	double orgSceneX=0;
 	double orgSceneY=0;
 	double orgTranslateX=0;
 	double orgTranslateY=0;
 
-	public ArrowLineModel(double sx,double sy,double ex,double ey) {
-		this.sx=sx;
-		this.sy=sy;
-		this.ex=ex;
-		this.ey=ey;
-	}
 	
-	void draggedMoveFrom(double mx,double my,double ox,double oy) {
+	public void draggedMoveFrom(double mx,double my,double ox,double oy) {
 		orgSceneX = mx;
 	    orgSceneY = my;
 	    orgTranslateX = ox;
 	    orgTranslateY = oy;   
 	}
-	double[] draggedMoveTo(double mx,double my) {
+	public double[] draggedMoveTo(double mx,double my) {
 		double offsetX = mx - orgSceneX;
 	    double offsetY = my - orgSceneY;
 	    double newTranslateX = orgTranslateX + offsetX;
@@ -32,7 +27,7 @@ public class ArrowLineModel {
 	    return point;
 	}
 	
-	double[] repaintArrow(double x1, double y1, double x2, double y2) {
+	public double[] repaintArrow(double x1, double y1, double x2, double y2) {
 		double H = 10 ; // 箭頭高度
 		double L = 7 ; // 底邊的一半
 		int x3 = 0 ;

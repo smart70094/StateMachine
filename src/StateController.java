@@ -1,4 +1,8 @@
 import java.util.HashMap;
+
+import Bridge.StateDiagramBridge;
+import Bridge.StateDiagram_V1_Bridge;
+import Model.Transition_V1;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -8,16 +12,17 @@ import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
 public class StateController {
-	StateFacade facade;
+	StateDiagramBridge stateBridge;
 	Stage stage;
 	StateMachineView stateMachineView;
 	ArrowLineView currentArrowLineView;
 	//記錄arrow的元件與相對應的model
-	HashMap<ArrowLineView,ArrowLineModel> arrowMap=new HashMap<ArrowLineView,ArrowLineModel>();
+	HashMap<ArrowLineView,Transition_V1> arrowMap=new HashMap<ArrowLineView,Transition_V1>();
+	
 	
 	StateController(Stage stage){
-		facade=new StateFacade();
 		this.stage=stage;
+		stateBridge=new StateDiagram_V1_Bridge();
 	}
 	void start() throws Exception {
 		stateMachineView=StateMachineView.getInstance();
@@ -37,15 +42,11 @@ public class StateController {
 		public void handle(Event e) {
 			//default transition position
 			final double points[]= {100, 10, 300, 10};
-			ArrowLineModel arrowModel=facade.createTransition(points[0],points[1],points[2],points[3]);
+			Transition_V1 arrowModel=stateBridge.createTransition();
 			ArrowLineView arrowView=stateMachineView.createTransition(points[0],points[1],points[2],points[3]);
 			double arrowPoint[]=arrowModel.repaintArrow(points[0],points[1],points[2],points[3]);
 			arrowView.repaint(arrowPoint[0],arrowPoint[1],arrowPoint[2],arrowPoint[3]);
-			
-			
-			
-			
-			
+				
 			//register move line
 			arrowView.addMoveForLineEvent(new MoveTransitionAction());
 			//register controll start and end size
@@ -69,7 +70,7 @@ public class StateController {
 				double ox=((ArrowLineView) e.getSource()).getTranslateX();
 				double oy=((ArrowLineView) e.getSource()).getTranslateY();
 				currentArrowLineView=(ArrowLineView)(e.getSource());	
-				ArrowLineModel arrowModel=arrowMap.get(currentArrowLineView);
+				Transition_V1 arrowModel=arrowMap.get(currentArrowLineView);
 				arrowModel.draggedMoveFrom(mx, my,ox,oy);
 			}
 			else if(eventType.equals(MouseEvent.MOUSE_RELEASED))
@@ -80,7 +81,7 @@ public class StateController {
 	class MoveTransitionAction implements EventHandler{
 		public void handle(Event e) {
 			if(currentArrowLineView!=null && e.getSource() instanceof Line) {
-				ArrowLineModel arrowModel=arrowMap.get(currentArrowLineView);
+				Transition_V1 arrowModel=arrowMap.get(currentArrowLineView);
 				EventType eventType=e.getEventType();
 				double mx=((MouseEvent) e).getSceneX();
 				double my=((MouseEvent) e).getSceneY();							
@@ -100,7 +101,7 @@ public class StateController {
 				double my=((MouseEvent) e).getSceneY();
 				currentArrowLineView.repaintStartCircle(mx, my);
 				
-				ArrowLineModel arrowModel=arrowMap.get(currentArrowLineView);
+				Transition_V1 arrowModel=arrowMap.get(currentArrowLineView);
 				double ex=currentArrowLineView.line.getEndX();
 				double ey=currentArrowLineView.line.getEndY();
 				double arrowPoint[]=arrowModel.repaintArrow(mx, my, ex, ey);
@@ -116,7 +117,7 @@ public class StateController {
 				double my=((MouseEvent) e).getSceneY();		
 				currentArrowLineView.repaintEndCircle(mx, my);
 				
-				ArrowLineModel arrowModel=arrowMap.get(currentArrowLineView);
+				Transition_V1 arrowModel=arrowMap.get(currentArrowLineView);
 				double sx=currentArrowLineView.line.getStartX();
 				double sy=currentArrowLineView.line.getStartY();
 				double arrowPoint[]=arrowModel.repaintArrow(sx,sy,mx, my);

@@ -1,15 +1,21 @@
 import javafx.event.EventHandler;
 import javafx.scene.Group;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 
 public class ArrowLineView extends Group{
 	Circle startCircle,endCircle;
 	Line line,l1,l2;
+	TextField nameText;
 	ArrowLineView(double sx,double sy,double ex,double ey){
 		line=new Line(sx,sy,ex,ey);
 		line.setId("line");
+		line.setLayoutX(this.getLayoutX());
+		line.setLayoutY(this.getLayoutY());
+		
 		
 		startCircle=new Circle(5);
 		startCircle.setLayoutX(sx);
@@ -26,9 +32,18 @@ public class ArrowLineView extends Group{
 		l2=new Line();
 		l2.setId("line");
 		
+		nameText=new TextField ("Text");
+		nameText.setLayoutX(100);
+		nameText.setLayoutY(-20);
+		nameText.setMinWidth(100);
+		
+		
+        
+		
 		this.getChildren().add(line);
 		this.getChildren().add(l1);
 		this.getChildren().add(l2);
+		this.getChildren().add(nameText);
 		this.getChildren().add(startCircle);
 		this.getChildren().add(endCircle);
 		repaint(sx,sy,ex,ey);
@@ -69,6 +84,9 @@ public class ArrowLineView extends Group{
 		l2.setStartY(line.getEndY());
 		l2.setEndX(x2);
 		l2.setEndY(y2);
+		
+		
+		
 		
 	}
 }
