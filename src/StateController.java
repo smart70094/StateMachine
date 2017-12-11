@@ -39,11 +39,18 @@ public class StateController {
 			final double points[]= {100, 10, 300, 10};
 			ArrowLineModel arrowModel=facade.createTransition(points[0],points[1],points[2],points[3]);
 			ArrowLineView arrowView=stateMachineView.createTransition(points[0],points[1],points[2],points[3]);
+			double arrowPoint[]=arrowModel.repaintArrow(points[0],points[1],points[2],points[3]);
+			arrowView.repaint(arrowPoint[0],arrowPoint[1],arrowPoint[2],arrowPoint[3]);
+			
+			
+			
+			
 			
 			//register move line
 			arrowView.addMoveForLineEvent(new MoveTransitionAction());
-			//register controll start size
+			//register controll start and end size
 			arrowView.addMoveForStartCircleEvent(new ResizeStartTransitionAction());
+			arrowView.addMoveForEndCircleEvent(new ResizeEndTransitionAction());
 			
 			//register arrowLine
 			arrowView.addEventHandler(MouseEvent.MOUSE_PRESSED, new selectTransitionAction());
@@ -57,7 +64,13 @@ public class StateController {
 		public void handle(Event e) {
 			EventType eventType=e.getEventType();
 			if(eventType.equals(MouseEvent.MOUSE_PRESSED)) {
+				double mx=((MouseEvent) e).getSceneX();
+				double my=((MouseEvent) e).getSceneY();
+				double ox=((ArrowLineView) e.getSource()).getTranslateX();
+				double oy=((ArrowLineView) e.getSource()).getTranslateY();
 				currentArrowLineView=(ArrowLineView)(e.getSource());	
+				ArrowLineModel arrowModel=arrowMap.get(currentArrowLineView);
+				arrowModel.draggedMoveFrom(mx, my,ox,oy);
 			}
 			else if(eventType.equals(MouseEvent.MOUSE_RELEASED))
 				currentArrowLineView=null;
@@ -70,13 +83,8 @@ public class StateController {
 				ArrowLineModel arrowModel=arrowMap.get(currentArrowLineView);
 				EventType eventType=e.getEventType();
 				double mx=((MouseEvent) e).getSceneX();
-				double my=((MouseEvent) e).getSceneY();
-				double ox=currentArrowLineView.getTranslateX();
-				double oy=currentArrowLineView.getTranslateY();
-				
-				if(eventType.equals(MouseEvent.MOUSE_PRESSED)) {
-					arrowModel.draggedMoveFrom(mx, my,ox,oy);
-				}else if(eventType.equals(MouseEvent.MOUSE_DRAGGED)) {
+				double my=((MouseEvent) e).getSceneY();							
+				if(eventType.equals(MouseEvent.MOUSE_DRAGGED)) {
 					double point[]=arrowModel.draggedMoveTo(mx, my);
 					currentArrowLineView.setTranslateX(point[0]);
 					currentArrowLineView.setTranslateY(point[1]);
@@ -84,13 +92,35 @@ public class StateController {
 			}
 		}
 	}
-	//調整Transition
+	//調整Transition start
 	class ResizeStartTransitionAction implements EventHandler{
 		public void handle(Event e) {
 			if(currentArrowLineView!=null && e.getSource() instanceof Circle) {
 				double mx=((MouseEvent) e).getSceneX();
-				double my=((MouseEvent) e).getSceneY();		
+				double my=((MouseEvent) e).getSceneY();
 				currentArrowLineView.repaintStartCircle(mx, my);
+				
+				ArrowLineModel arrowModel=arrowMap.get(currentArrowLineView);
+				double ex=currentArrowLineView.line.getEndX();
+				double ey=currentArrowLineView.line.getEndY();
+				double arrowPoint[]=arrowModel.repaintArrow(mx, my, ex, ey);
+				currentArrowLineView.repaint(arrowPoint[0],arrowPoint[1],arrowPoint[2],arrowPoint[3]);
+			}
+		}
+	}
+	//調整Transition end
+	class ResizeEndTransitionAction implements EventHandler{
+		public void handle(Event e) {
+			if(currentArrowLineView!=null && e.getSource() instanceof Circle) {
+				double mx=((MouseEvent) e).getSceneX();
+				double my=((MouseEvent) e).getSceneY();		
+				currentArrowLineView.repaintEndCircle(mx, my);
+				
+				ArrowLineModel arrowModel=arrowMap.get(currentArrowLineView);
+				double sx=currentArrowLineView.line.getStartX();
+				double sy=currentArrowLineView.line.getStartY();
+				double arrowPoint[]=arrowModel.repaintArrow(sx,sy,mx, my);
+				currentArrowLineView.repaint(arrowPoint[0],arrowPoint[1],arrowPoint[2],arrowPoint[3]);
 			}
 		}
 	}

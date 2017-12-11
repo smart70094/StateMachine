@@ -21,16 +21,26 @@ public class ArrowLineView extends Group{
 		endCircle.setLayoutY(ey);
 		endCircle.setId("terminalPoint");
 		
+		l1=new Line();
+		l1.setId("line");
+		l2=new Line();
+		l2.setId("line");
+		
 		this.getChildren().add(line);
+		this.getChildren().add(l1);
+		this.getChildren().add(l2);
 		this.getChildren().add(startCircle);
 		this.getChildren().add(endCircle);
+		repaint(sx,sy,ex,ey);
 	}
 	
 	@SuppressWarnings("unchecked")
 	void addMoveForStartCircleEvent(EventHandler e) {
-		startCircle.addEventHandler(MouseEvent.MOUSE_CLICKED, e);
 		startCircle.addEventHandler(MouseEvent.MOUSE_DRAGGED, e);
-		startCircle.addEventHandler(MouseEvent.MOUSE_RELEASED, e);
+	}
+	@SuppressWarnings("unchecked")
+	void addMoveForEndCircleEvent(EventHandler e) {
+		endCircle.addEventHandler(MouseEvent.MOUSE_DRAGGED, e);
 	}
 	@SuppressWarnings("unchecked")
 	void addMoveForLineEvent(EventHandler e) {
@@ -42,5 +52,23 @@ public class ArrowLineView extends Group{
 		line.setStartY(sy);
 		startCircle.setLayoutX(sx);
 		startCircle.setLayoutY(sy);
+	}
+	void repaintEndCircle(double sx,double sy) {
+		line.setEndX(sx);
+		line.setEndY(sy);
+		endCircle.setLayoutX(sx);
+		endCircle.setLayoutY(sy);
+	}
+	void repaint(double x1,double y1,double x2,double y2) {
+		l1.setStartX(line.getEndX());
+		l1.setStartY(line.getEndY());
+		l1.setEndX(x1);
+		l1.setEndY(y1);
+		
+		l2.setStartX(line.getEndX());
+		l2.setStartY(line.getEndY());
+		l2.setEndX(x2);
+		l2.setEndY(y2);
+		
 	}
 }
