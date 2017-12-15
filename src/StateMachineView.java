@@ -1,6 +1,10 @@
 import java.util.Optional;
 
-import Model.LineModel;
+import Model.State;
+import Model.Transition;
+import OtherModel.LineModel;
+import ViewModel.ArrowLineView;
+import ViewModel.StateView;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -16,6 +20,7 @@ public class StateMachineView extends Application{
 	private Scene scene;
 	
 	private Button transitionBtn;
+	private Button stateBtn;
 	static volatile StateMachineView stateView=null;
 	public static StateMachineView getInstance() {
 		if(stateView==null) {
@@ -37,23 +42,36 @@ public class StateMachineView extends Application{
 		root=new AnchorPane();
 		//新增介面元件
 		transitionBtn=new Button("Transition");
+		stateBtn=new Button("State");
+		stateBtn.setLayoutY(50);
 		
 		//
 		root.getChildren().add(transitionBtn);
+		root.getChildren().add(stateBtn);
 		css=getClass().getResource("stylesheet.css").toExternalForm();
 		scene=new Scene(root,1080,768);
 	}
 	
-	ArrowLineView createTransition(LineModel line) {
-		ArrowLineView arrowLineView=new ArrowLineView(line);
+	ArrowLineView createTransition(Transition transition) {
+		ArrowLineView arrowLineView=new ArrowLineView(transition);
 		root.getChildren().add(arrowLineView);
 		return arrowLineView;
+	}
+	
+	StateView createState(State state) {
+		StateView stateView=new StateView(state);
+		root.getChildren().add(stateView);
+		return stateView;
 	}
 	
 	//register event
 	@SuppressWarnings("unchecked")
 	void addActionForTransitionBtn(EventHandler e) {
 		transitionBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, e);
+	}
+	@SuppressWarnings("unchecked")
+	void addActionStateBtn(EventHandler e) {
+		stateBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, e);
 	}
 	
 	String showIinputDialog() {
@@ -64,13 +82,7 @@ public class StateMachineView extends Application{
 
 		// Traditional way to get the response value.
 		Optional<String> result = dialog.showAndWait();
-		if (result.isPresent()){
-		    System.out.println("Your name: " + result.get());
-		}
-
-		// The Java 8 way to get the response value (with lambda expression).
-		result.ifPresent(name -> System.out.println("Your name: " + name));
-		return null;
+		return result.get();
 		
 	}
 }

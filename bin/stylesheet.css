@@ -3,6 +3,26 @@
 	-fx-stroke: BLACK;
 	-fx-opacity: 0.1;
 }
-#line{
-	-fx-stroke-width:2px;
+#TransitionStyle1{
+	-fx-stroke-width:3px;
+}
+#TransitionStyle2{
+	-fx-stroke-width:3px;
+	-fx-stroke: red;
+	-fx-stroke-dash-array: 12 2 4 2;
+    	-fx-stroke-dash-offset: 6;
+    	-fx-stroke-line-cap: butt;
+}
+#StateStyle1{
+	-fx-stroke-width:3px;
+	-fx-fill: WHITE;
+	-fx-stroke: BLACK;
+}
+#StateStyle2{
+	-fx-stroke-width:3px;
+	-fx-fill: WHITE;
+	-fx-stroke: red;
+	-fx-stroke-dash-array: 12 2 4 2;
+    	-fx-stroke-dash-offset: 6;
+    	-fx-stroke-line-cap: butt;
 }

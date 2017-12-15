@@ -2,8 +2,14 @@ package Bridge;
 
 import AbstractFactory.StateDiagramAbstractFactory;
 import AbstractFactory.VersionOneFactory;
+import Command.CreateStateCommand;
 import Command.CreateTransitionCommand;
+import Command.RenameCommand;
 import Command.StateDiagramCommand;
+import Model.DiagramElement;
+import Model.StateDiagram_V1;
+import Model.State_V1;
+import Model.Transition;
 import Model.Transition_V1;
 
 public class StateDiagram_V1_Bridge implements StateDiagramBridge{
@@ -14,9 +20,9 @@ public class StateDiagram_V1_Bridge implements StateDiagramBridge{
 	}
 	
 	@Override
-	public void createState() {
-		// TODO Auto-generated method stub
-		
+	public State_V1 createState() {
+		StateDiagramCommand command=new CreateStateCommand(factory);
+		return (State_V1) command.execute();
 	}
 
 	@Override
@@ -26,9 +32,10 @@ public class StateDiagram_V1_Bridge implements StateDiagramBridge{
 	}
 
 	@Override
-	public void createStateDiagram() {
-		// TODO Auto-generated method stub
+	public StateDiagram_V1 createStateDiagram() {
 		
+		
+		return null;
 	}
 
 	@Override
@@ -47,6 +54,12 @@ public class StateDiagram_V1_Bridge implements StateDiagramBridge{
 	public void redo() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void rename(String name,DiagramElement de) {
+		StateDiagramCommand command=new RenameCommand(name,de);
+		command.execute();
 	}
 
 }

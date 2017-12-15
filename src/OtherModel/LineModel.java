@@ -1,4 +1,6 @@
-package Model;
+package OtherModel;
+
+import Model.DiagramElement;
 
 public class LineModel extends DiagramElement{
 	public double sx,sy,ex,ey;

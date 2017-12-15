@@ -1,15 +1,19 @@
 package Model;
 
+import OtherModel.LineModel;
+import OtherModel.TextModel;
+
 public class Transition extends DiagramElement{
 	public LineModel mainLine,arrow1,arrow2;
 	public TextModel textModel;
-	public double x,y;
-	public String name,style;
 	
-	double orgSceneX=0;
-	double orgSceneY=0;
-	double orgTranslateX=0;
-	double orgTranslateY=0;
+	public Transition() {
+		mainLine=new LineModel();
+		arrow1=new LineModel();
+		arrow2=new LineModel();
+		textModel=new TextModel();
+		this.repaintArrow();
+	}
 	
 	public void repaintArrow() {
 		double x1=mainLine.sx;

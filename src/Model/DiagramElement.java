@@ -1,6 +1,9 @@
 package Model;
 
 public abstract class DiagramElement {
+	public double x,y;
+	public String name,style;
+	
 	double orgSceneX=0;
 	double orgSceneY=0;
 	double orgTranslateX=0;

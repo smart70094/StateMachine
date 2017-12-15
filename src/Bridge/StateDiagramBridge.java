@@ -1,13 +1,16 @@
 package Bridge;
 
-import Model.Transition_V1;
+import Model.DiagramElement;
+import Model.State;
+import Model.StateDiagram;
+import Model.Transition;
 
 public interface StateDiagramBridge {
-	void createState();
-	Transition_V1 createTransition();
-	void createStateDiagram();
+	State createState();
+	Transition createTransition();
+	StateDiagram createStateDiagram();
+	void rename(String name,DiagramElement de);
 	void remove();
 	void undo();
 	void redo();
-	
 }

@@ -5,7 +5,7 @@ import Model.Transition;
 import Model.Transition_V1;
 
 public class TransitionBuilder extends DiagramElementBuilder{
-	Transition result=new Transition_V1();
+	Transition result;
 	void setShape(double... data) {
 		double sx=data[0];
 		double sy=data[1];
@@ -31,7 +31,6 @@ public class TransitionBuilder extends DiagramElementBuilder{
 	@Override
 	Object getResult() {
 		return result;
-		
 	}
 
 	@Override
@@ -41,5 +40,11 @@ public class TransitionBuilder extends DiagramElementBuilder{
 		double y=data[1];
 		result.x=x;
 		result.y=y;
+	}
+
+	@Override
+	void setElements(DiagramElement de) {
+		// TODO Auto-generated method stub
+		result=(Transition)de;
 	}
 }
