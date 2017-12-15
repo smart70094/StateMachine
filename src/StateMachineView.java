@@ -1,7 +1,11 @@
+import java.util.Optional;
+
+import Model.LineModel;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
@@ -40,8 +44,8 @@ public class StateMachineView extends Application{
 		scene=new Scene(root,1080,768);
 	}
 	
-	ArrowLineView createTransition(double sx,double sy,double ex,double ey) {
-		ArrowLineView arrowLineView=new ArrowLineView(sx,sy,ex,ey);
+	ArrowLineView createTransition(LineModel line) {
+		ArrowLineView arrowLineView=new ArrowLineView(line);
 		root.getChildren().add(arrowLineView);
 		return arrowLineView;
 	}
@@ -50,5 +54,23 @@ public class StateMachineView extends Application{
 	@SuppressWarnings("unchecked")
 	void addActionForTransitionBtn(EventHandler e) {
 		transitionBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, e);
+	}
+	
+	String showIinputDialog() {
+		TextInputDialog dialog = new TextInputDialog("walter");
+		dialog.setTitle("Text Input Dialog");
+		dialog.setHeaderText("Look, a Text Input Dialog");
+		dialog.setContentText("Please enter your name:");
+
+		// Traditional way to get the response value.
+		Optional<String> result = dialog.showAndWait();
+		if (result.isPresent()){
+		    System.out.println("Your name: " + result.get());
+		}
+
+		// The Java 8 way to get the response value (with lambda expression).
+		result.ifPresent(name -> System.out.println("Your name: " + name));
+		return null;
+		
 	}
 }

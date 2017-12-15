@@ -1,6 +1,10 @@
+import java.util.Optional;
+
+import Model.LineModel;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -9,8 +13,13 @@ import javafx.scene.text.Text;
 public class ArrowLineView extends Group{
 	Circle startCircle,endCircle;
 	Line line,l1,l2;
-	TextField nameText;
-	ArrowLineView(double sx,double sy,double ex,double ey){
+	Text nameText;
+	ArrowLineView(LineModel lineModel){
+		double sx=lineModel.sx;
+		double sy=lineModel.sy;
+		double ex=lineModel.ex;
+		double ey=lineModel.ey;
+		
 		line=new Line(sx,sy,ex,ey);
 		line.setId("line");
 		line.setLayoutX(this.getLayoutX());
@@ -32,13 +41,11 @@ public class ArrowLineView extends Group{
 		l2=new Line();
 		l2.setId("line");
 		
-		nameText=new TextField ("Text");
-		nameText.setLayoutX(100);
-		nameText.setLayoutY(-20);
-		nameText.setMinWidth(100);
-		
-		
-        
+		nameText=new Text ("Text");
+		nameText.setTranslateX(100);
+		nameText.setTranslateY(-5);
+		//nameText.setMinWidth(70);
+		//nameText.setDisable(true);
 		
 		this.getChildren().add(line);
 		this.getChildren().add(l1);
@@ -46,12 +53,12 @@ public class ArrowLineView extends Group{
 		this.getChildren().add(nameText);
 		this.getChildren().add(startCircle);
 		this.getChildren().add(endCircle);
-		repaint(sx,sy,ex,ey);
 	}
 	
 	@SuppressWarnings("unchecked")
 	void addMoveForStartCircleEvent(EventHandler e) {
 		startCircle.addEventHandler(MouseEvent.MOUSE_DRAGGED, e);
+		startCircle.addEventHandler(MouseEvent.MOUSE_PRESSED, e);
 	}
 	@SuppressWarnings("unchecked")
 	void addMoveForEndCircleEvent(EventHandler e) {
@@ -62,11 +69,20 @@ public class ArrowLineView extends Group{
 		line.addEventHandler(MouseEvent.MOUSE_PRESSED, e);
 		line.addEventHandler(MouseEvent.MOUSE_DRAGGED, e);
 	}
-	void repaintStartCircle(double sx,double sy) {
-		line.setStartX(sx);
-		line.setStartY(sy);
-		startCircle.setLayoutX(sx);
-		startCircle.setLayoutY(sy);
+	@SuppressWarnings("unchecked")
+	void addMoveForTextEvent(EventHandler e) {
+		nameText.addEventHandler(MouseEvent.MOUSE_PRESSED, e);
+		nameText.addEventHandler(MouseEvent.MOUSE_DRAGGED, e);
+		//nameText.addEventHandler(MouseEvent.MOUSE_CLICKED, e);
+	}
+	
+	
+	void repaintStartCircle(double sx,double sy,double mx,double my) {
+		startCircle.setTranslateX(sx);
+		startCircle.setTranslateY(sy);
+		line.setStartX(mx-this.getLayoutX());
+		line.setStartY(my-this.getLayoutY());
+		
 	}
 	void repaintEndCircle(double sx,double sy) {
 		line.setEndX(sx);
@@ -74,19 +90,15 @@ public class ArrowLineView extends Group{
 		endCircle.setLayoutX(sx);
 		endCircle.setLayoutY(sy);
 	}
-	void repaint(double x1,double y1,double x2,double y2) {
-		l1.setStartX(line.getEndX());
-		l1.setStartY(line.getEndY());
-		l1.setEndX(x1);
-		l1.setEndY(y1);
+	void repaintArrow(LineModel arrow1,LineModel arrow2) {	
+		l1.setStartX(arrow1.sx);
+		l1.setStartY(arrow1.sy);
+		l1.setEndX(arrow1.ex);
+		l1.setEndY(arrow1.ey);
 		
-		l2.setStartX(line.getEndX());
-		l2.setStartY(line.getEndY());
-		l2.setEndX(x2);
-		l2.setEndY(y2);
-		
-		
-		
-		
+		l2.setStartX(arrow2.sx);
+		l2.setStartY(arrow2.sy);
+		l2.setEndX(arrow2.ex);
+		l2.setEndY(arrow2.ey);
 	}
 }

@@ -6,10 +6,10 @@ public class TransitionSupervisor extends DiagramElementSupervisor{
 		super(builder);
 	}
 
-	void construct() {
-		builder.setShape(100,100,200,100);
+	public Object construct() {
+		builder.setShape(100, 10, 300, 10);
 		builder.setPosition(100,100);
 		builder.setName("Transition");
+		return builder.getResult();
 	}
-
 }

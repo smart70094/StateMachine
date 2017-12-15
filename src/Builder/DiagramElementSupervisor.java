@@ -8,8 +8,6 @@ public abstract class DiagramElementSupervisor {
 	public DiagramElementSupervisor(DiagramElementBuilder builder) {
 		this.builder=builder;
 	}
-	abstract void construct();
-	DiagramElement getResult() {
-		return diagramElement;
-	}
+	public abstract Object construct();
+
 }
