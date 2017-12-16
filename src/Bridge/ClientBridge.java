@@ -25,8 +25,8 @@ public class ClientBridge {
 	public void rename(String name,DiagramElement de) {
 		bridge.rename(name,de);
 	}
-	public void remove(DiagramElement de) {
-		bridge.remove(de);
+	public void remove(DiagramElement parent ,DiagramElement children) {
+		bridge.remove(parent,children);
 	}
 	
 }

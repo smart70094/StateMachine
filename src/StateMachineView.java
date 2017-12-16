@@ -14,6 +14,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
@@ -22,6 +24,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -65,8 +68,17 @@ public class StateMachineView extends Application{
 		stateBtn.setLayoutY(50);
 		stateDiagramBtn=new Button("stateDiagram");
 		stateDiagramBtn.setLayoutY(100);
-		img=new ImageView();
-		img.setId("img");
+		
+		Image image = new Image(getClass().getResource("123.png").toString());
+		img=new ImageView(image);
+		img.setFitWidth(50);
+		img.setFitHeight(50);
+		img.setPreserveRatio(true);
+		img.setSmooth(true);
+		img.setCache(true);
+		img.setLayoutX(1080-50);
+		img.setLayoutY(768-50);
+
 		
 		
 		root.getChildren().add(transitionBtn);
@@ -86,10 +98,18 @@ public class StateMachineView extends Application{
 		StateView stateView=new StateView(state);
 		return stateView;
 	}
-	StateDiagramView createStateDiagram(StateDiagram stateDiagram) {
-		StateDiagramView stateDiagramView=new StateDiagramView(stateDiagram);
+	StateDiagramView createStateDiagram(StateDiagram stateDiagram,StateDiagramView lastStateDiagram) {
+		StateDiagramView stateDiagramView=new StateDiagramView(stateDiagram,lastStateDiagram);
 		root.getChildren().add(stateDiagramView);
 		return stateDiagramView;
+	}
+	void removeStateDiagram(StateDiagramView stateDiagramView) {
+		StateDiagramView lastStateDiagram=stateDiagramView.lastStateDiagram;
+		if(lastStateDiagram==null) {
+			root.getChildren().remove(stateDiagramView);
+		}else {
+			lastStateDiagram.getChildren().remove(stateDiagramView);
+		}
 	}
 	
 	//register event
@@ -101,10 +121,17 @@ public class StateMachineView extends Application{
 	void addActionStateBtn(EventHandler e) {
 		stateBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, e);
 	}
+	@SuppressWarnings("unchecked")
 	void addActionStateDiagramBtn(EventHandler e) {
 		stateDiagramBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, e);
 	}
+	@SuppressWarnings("unchecked")
+	void addActionRemoveDiagram(EventHandler e) {
+		img.addEventHandler(MouseEvent.MOUSE_ENTERED, e);
+	}
 	
+	
+	//Dialog
 	String showIinputDialog() {
 		TextInputDialog dialog = new TextInputDialog("");
 		dialog.setTitle("Message");
@@ -112,8 +139,11 @@ public class StateMachineView extends Application{
 
 		// Traditional way to get the response value.
 		Optional<String> result = dialog.showAndWait();
-		return result.get();
-		
+		try {
+			return result.get();
+		}catch(NoSuchElementException e) {
+			return null;
+		}
 	}
 	
 	String reSizeStr="";
@@ -182,4 +212,16 @@ public class StateMachineView extends Application{
 		return null;
 	}
 	
+	boolean showCheckRemoveDialog() {
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Message");
+		alert.setHeaderText("你確定要刪除?");
+
+		Optional<ButtonType> result = alert.showAndWait();
+		if (result.get() == ButtonType.OK){
+		    return true;
+		} else {
+		    return false;
+		}
+	}
 }

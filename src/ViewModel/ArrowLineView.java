@@ -85,11 +85,11 @@ public class ArrowLineView extends Group {
 		nameText.addEventHandler(MouseEvent.MOUSE_CLICKED, e);
 	}
 
-	public void repaintStartCircle(double sx, double sy, double mx, double my) {
-		startCircle.setTranslateX(sx);
-		startCircle.setTranslateY(sy);
-		line.setStartX(mx - this.getLayoutX());
-		line.setStartY(my - this.getLayoutY());
+	public void repaintStartCircle(double sx, double sy) {
+		startCircle.setLayoutX(sx);
+		startCircle.setLayoutY(sy);
+		line.setStartX(sx);
+		line.setStartY(sy);
 
 	}
 

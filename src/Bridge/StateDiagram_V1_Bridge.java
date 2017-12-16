@@ -5,6 +5,7 @@ import AbstractFactory.VersionOneFactory;
 import Command.CreateStateCommand;
 import Command.CreateStateDiagramCommand;
 import Command.CreateTransitionCommand;
+import Command.RemoveCommand;
 import Command.RenameCommand;
 import Command.StateDiagramCommand;
 import Model.DiagramElement;
@@ -40,10 +41,16 @@ public class StateDiagram_V1_Bridge implements StateDiagramBridge{
 
 	@Override
 	public void remove(DiagramElement parent ,DiagramElement children) {
-		
-		
+		StateDiagramCommand command=new RemoveCommand(parent,children);
+		command.execute();
 	}
 
+	@Override
+	public void rename(String name,DiagramElement de) {
+		StateDiagramCommand command=new RenameCommand(name,de);
+		command.execute();
+	}
+	
 	@Override
 	public void undo() {
 		// TODO Auto-generated method stub
@@ -56,10 +63,5 @@ public class StateDiagram_V1_Bridge implements StateDiagramBridge{
 		
 	}
 
-	@Override
-	public void rename(String name,DiagramElement de) {
-		StateDiagramCommand command=new RenameCommand(name,de);
-		command.execute();
-	}
 
 }

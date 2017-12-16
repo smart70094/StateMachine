@@ -10,4 +10,5 @@ public class CreateStateCommand implements StateDiagramCommand{
 	public Object execute() {
 		return factory.createState();
 	}
+	
 }

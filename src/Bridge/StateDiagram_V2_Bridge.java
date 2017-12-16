@@ -5,6 +5,7 @@ import AbstractFactory.VersionTwoFactory;
 import Command.CreateStateCommand;
 import Command.CreateStateDiagramCommand;
 import Command.CreateTransitionCommand;
+import Command.RemoveCommand;
 import Command.RenameCommand;
 import Command.StateDiagramCommand;
 import Model.DiagramElement;
@@ -40,7 +41,14 @@ StateDiagramAbstractFactory factory;
 
 	@Override
 	public void remove(DiagramElement parent ,DiagramElement children) {
-		// TODO Auto-generated method stub
+		StateDiagramCommand command=new RemoveCommand(parent,children);
+		command.execute();
+	}
+	
+	@Override
+	public void rename(String name,DiagramElement de) {
+		StateDiagramCommand command=new RenameCommand(name,de);
+		command.execute();
 		
 	}
 
@@ -56,10 +64,5 @@ StateDiagramAbstractFactory factory;
 		
 	}
 
-	@Override
-	public void rename(String name,DiagramElement de) {
-		StateDiagramCommand command=new RenameCommand(name,de);
-		command.execute();
-		
-	}
+
 }

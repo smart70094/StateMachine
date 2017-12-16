@@ -13,6 +13,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
@@ -25,8 +26,10 @@ public class StateController {
 	StateMachineView stateMachineView;
 	ArrowLineView currentTransition;
 	StateView currentState;
-	StateDiagramView currentStateDiagram;
+	StateDiagramView currentStateDiagramView;
+	
 	DiagramElement stateDiagram;
+	DiagramElement rootStateDiagram;
 	
 	//記錄元件與相對應的model
 	HashMap<ArrowLineView,Transition> arrowMap=new HashMap<ArrowLineView,Transition>();
@@ -35,7 +38,7 @@ public class StateController {
 	
 	StateController(Stage stage){
 		this.stage=stage;
-		clientBridge=new ClientBridge(new StateDiagram_V2_Bridge());
+		clientBridge=new ClientBridge(new StateDiagram_V1_Bridge());
 	}
 	void start() throws Exception {
 		stateMachineView=StateMachineView.getInstance();
@@ -45,12 +48,26 @@ public class StateController {
 		stateMachineView.addActionStateBtn(new CreateStateAction());
 		stateMachineView.addActionStateDiagramBtn(new CreateStateDiagramAction());
 		
+		
+		rootStateDiagram=clientBridge.createStateDiagram();
+		
 		stateDiagram=clientBridge.createStateDiagram();
-		currentStateDiagram=createStateDiagram((StateDiagram)stateDiagram);
-		stateDiagramMap.put(currentStateDiagram, (StateDiagram)stateDiagram);
+		currentStateDiagramView=createStateDiagram((StateDiagram)stateDiagram,null);
+		stateDiagramMap.put(currentStateDiagramView, (StateDiagram)stateDiagram);
+		rootStateDiagram.add(stateDiagram);
 	}
 	
-	
+	boolean detectCollision(DiagramElement de,double mx,double my) {
+		if(de.detectCollision(mx, my)) {
+			if(stateMachineView.showCheckRemoveDialog()) {
+				clientBridge.remove(rootStateDiagram,de);
+				return true;
+			}else {
+				return false;
+			}
+		}
+		return false;
+	}
 	//Event Class
 	
 	//新增Transition
@@ -75,7 +92,7 @@ public class StateController {
 			
 			stateDiagram.add(arrowModel);
 			arrowMap.put(arrowView,arrowModel);
-			currentStateDiagram.getChildren().add(arrowView);
+			currentStateDiagramView.getChildren().add(arrowView);
 		}
 	}
 	
@@ -91,7 +108,7 @@ public class StateController {
 			stateView.addRenameForTextEvent(new RenameForState());
 			stateMap.put(stateView, state);
 			stateDiagram.add(state);
-			currentStateDiagram.getChildren().add(stateView);
+			currentStateDiagramView.getChildren().add(stateView);
 			
 		}
 	}
@@ -100,15 +117,16 @@ public class StateController {
 	class CreateStateDiagramAction implements EventHandler{
 		@SuppressWarnings("unchecked")
 		public void handle(Event e) {
-			StateDiagram stateDiagram=clientBridge.createStateDiagram();
-			StateDiagramView stateDiagramView=createStateDiagram(stateDiagram);
-			stateDiagramMap.put(stateDiagramView, stateDiagram);
-			stateDiagram.add(stateDiagram);
+			StateDiagram sd=clientBridge.createStateDiagram();
+			StateDiagramView stateDiagramView=createStateDiagram(sd,currentStateDiagramView.pane);
+			stateDiagramMap.put(stateDiagramView, sd);
+			stateDiagram.add(sd);
+			stateDiagram=sd;
 		}
 	}
 	@SuppressWarnings("unchecked")
-	public StateDiagramView createStateDiagram(StateDiagram stateDiagram) {
-		StateDiagramView stateDiagramView=stateMachineView.createStateDiagram(stateDiagram);
+	public StateDiagramView createStateDiagram(StateDiagram stateDiagram,AnchorPane pane) {
+		StateDiagramView stateDiagramView=stateMachineView.createStateDiagram(stateDiagram,null);
 		stateDiagramView.addEventHandler(MouseEvent.MOUSE_PRESSED, new SelectStateDiagramAction());
 		stateDiagramView.addEventHandler(MouseEvent.MOUSE_DRAGGED, new MoveStateDiagramAction());
 		stateDiagramView.addEventHandler(MouseEvent.MOUSE_CLICKED, new DoubleClickStateDiagramAction());
@@ -165,8 +183,8 @@ public class StateController {
 				double my=((MouseEvent) e).getSceneY();
 				double ox=((StateDiagramView) e.getSource()).getTranslateX();
 				double oy=((StateDiagramView) e.getSource()).getTranslateY();
-				currentStateDiagram=(StateDiagramView)(e.getSource());	
-				DiagramElement de=stateDiagramMap.get(currentStateDiagram);
+				currentStateDiagramView=(StateDiagramView)(e.getSource());	
+				DiagramElement de=stateDiagramMap.get(currentStateDiagramView);
 				de.draggedMoveFrom(mx, my,ox,oy);
 				stateDiagram=de;
 			}
@@ -183,7 +201,7 @@ public class StateController {
 				int width=reSizeArr[0];
 				int height=reSizeArr[1];
 				System.out.println(width+","+height);
-				currentStateDiagram.setSize(width, height);
+				currentStateDiagramView.setSize(width, height);
 			}
 		}
 	}
@@ -191,18 +209,24 @@ public class StateController {
 	//拖曳StateDiagram
 	class MoveStateDiagramAction implements EventHandler{
 		public void handle(Event e) {
-			if(currentStateDiagram!=null && (currentState==null && currentTransition==null)) {
-				DiagramElement de=stateDiagramMap.get(currentStateDiagram);
+			if(currentStateDiagramView!=null && (currentState==null && currentTransition==null)) {
+				DiagramElement de=stateDiagramMap.get(currentStateDiagramView);
 				EventType eventType=e.getEventType();
 				double mx=((MouseEvent) e).getSceneX();
 				double my=((MouseEvent) e).getSceneY();							
 				if(eventType.equals(MouseEvent.MOUSE_DRAGGED)) {
 					double point[]=de.draggedMoveTo(mx, my);
-					currentStateDiagram.setTranslateX(point[0]);
-					currentStateDiagram.setTranslateY(point[1]);
+					currentStateDiagramView.setTranslateX(point[0]);
+					currentStateDiagramView.setTranslateY(point[1]);
 					
-					de.x=currentStateDiagram.getLayoutX();
-					de.y=currentStateDiagram.getLayoutY();
+					de.x=currentStateDiagramView.getLayoutX();
+					de.y=currentStateDiagramView.getLayoutY();
+					if(detectCollision(de,mx,my)) {
+						stateMachineView.removeStateDiagram(currentStateDiagramView);
+						StateDiagramView t=currentStateDiagramView;
+						currentStateDiagramView=t.lastStateDiagram;
+						stateDiagramMap.remove(t);
+					}
 				}
 			}
 		}
@@ -223,6 +247,11 @@ public class StateController {
 					
 					de.x=currentTransition.getLayoutX();
 					de.y=currentTransition.getLayoutY();
+					
+					if(detectCollision(de,mx,my)) {
+						currentStateDiagramView.getChildren().remove(currentTransition);
+						arrowMap.remove(currentTransition);
+					}
 				}
 			}
 		}
@@ -243,6 +272,11 @@ public class StateController {
 					
 					de.x=currentState.getLayoutX();
 					de.y=currentState.getLayoutY();
+					if(detectCollision(de,mx,my)) {
+						currentStateDiagramView.getChildren().remove(currentState);
+						stateMap.remove(currentState);
+					}
+					
 				}
 			}
 		}
@@ -268,10 +302,12 @@ public class StateController {
 					//重新命名
 				}else if (eventType.equals(MouseEvent.MOUSE_CLICKED)) {	
 					String name=stateMachineView.showIinputDialog();
-					nameText.setText(name);
-					currentTransition=(ArrowLineView) nameText.getParent();
-					DiagramElement de=arrowMap.get(currentTransition);				
-					clientBridge.rename(name, de);
+					if(name!=null) {
+						nameText.setText(name);
+						currentTransition=(ArrowLineView) nameText.getParent();
+						DiagramElement de=arrowMap.get(currentTransition);				
+						clientBridge.rename(name, de);
+					}
 				} 
 			}
 			
@@ -292,7 +328,6 @@ public class StateController {
 					System.out.println("test");
 				}
 			}
-			
 		}
 	}
 	//更改State名稱
@@ -303,9 +338,11 @@ public class StateController {
 				Text nameText=((Text) e.getSource());
 				if (eventType.equals(MouseEvent.MOUSE_CLICKED)) {	
 					String name=stateMachineView.showIinputDialog();
-					nameText.setText(name);
-					DiagramElement de=stateMap.get(currentState);
-					clientBridge.rename(name, de);
+					if(name!=null) {
+						nameText.setText(name);
+						DiagramElement de=stateMap.get(currentState);
+						clientBridge.rename(name, de);
+					}
 				}
 			}
 			
@@ -321,9 +358,11 @@ public class StateController {
 				Text nameText=((Text) e.getSource());
 				if (eventType.equals(MouseEvent.MOUSE_CLICKED)) {	
 					String name=stateMachineView.showIinputDialog();
-					nameText.setText(name);
-					DiagramElement de=stateDiagramMap.get(currentStateDiagram);
-					clientBridge.rename(name, de);
+					if(name!=null) {
+						nameText.setText(name);
+						DiagramElement de=stateDiagramMap.get(currentStateDiagramView);
+						clientBridge.rename(name, de);
+					}
 				}
 			}
 		}
@@ -331,7 +370,7 @@ public class StateController {
 	
 	
 	//調整Transition start
-	class ResizeStartTransitionAction implements EventHandler{
+	/*class ResizeStartTransitionAction implements EventHandler{
 		double lx,ly;
 		boolean isFirst=false;
 		public void handle(Event e) {
@@ -364,6 +403,23 @@ public class StateController {
 				currentTransition.repaintArrow(arrowModel.arrow1,arrowModel.arrow2);
 			}
 		}
+	}*/
+	
+	class ResizeStartTransitionAction implements EventHandler{
+		public void handle(Event e) {
+			if(currentTransition!=null && e.getSource() instanceof Circle) {
+				double mx=((MouseEvent) e).getSceneX();
+				double my=((MouseEvent) e).getSceneY();
+				currentTransition.repaintStartCircle(mx, my);
+				
+				Transition arrowModel=arrowMap.get(currentTransition);
+				arrowModel.mainLine.sx=mx;
+				arrowModel.mainLine.sy=my;
+				arrowModel.repaintArrow();
+				currentTransition.repaintArrow(arrowModel.arrow1,arrowModel.arrow2);
+				
+			}
+		}
 	}
 	//調整Transition end
 	class ResizeEndTransitionAction implements EventHandler{
@@ -374,8 +430,6 @@ public class StateController {
 				currentTransition.repaintEndCircle(mx, my);
 				
 				Transition arrowModel=arrowMap.get(currentTransition);
-				double sx=currentTransition.line.getStartX();
-				double sy=currentTransition.line.getStartY();
 				arrowModel.mainLine.ex=mx;
 				arrowModel.mainLine.ey=my;
 				arrowModel.repaintArrow();
@@ -383,6 +437,7 @@ public class StateController {
 			}
 		}
 	}
+	
 }
 
 

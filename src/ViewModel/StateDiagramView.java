@@ -8,9 +8,11 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 
 public class StateDiagramView extends Group{
-	AnchorPane pane;
+	public AnchorPane pane;
+	public StateDiagramView lastStateDiagram;
 	Text nameText;
-	public StateDiagramView(StateDiagram stateDiagram) {
+	public StateDiagramView(StateDiagram stateDiagram,StateDiagramView lastStateDiagram) {
+		this.lastStateDiagram=lastStateDiagram;
 		pane=new AnchorPane();
 		pane.setPrefWidth(stateDiagram.width);
 		pane.setPrefHeight(stateDiagram.height);

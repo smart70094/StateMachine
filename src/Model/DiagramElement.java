@@ -34,4 +34,12 @@ public abstract class DiagramElement {
 	    double[] point= {newTranslateX,newTranslateY};
 	    return point;
 	}
+	public boolean detectCollision(double mx,double my) {
+		if(mx>1030 && mx<1080 && my>718 && my<768)
+			return true;
+		return false;
+			
+		
+		
+	}
 }
