@@ -1,7 +1,8 @@
 package Builder;
 
-import Model.StateDiagram;
-import Model.State_V1;
+
+import Model.StateDiagram_V1;
+
 
 public class StateDiagram_V1_Supervisor extends StateDiagramSupervisor{
 
@@ -11,9 +12,9 @@ public class StateDiagram_V1_Supervisor extends StateDiagramSupervisor{
 
 	@Override
 	public Object construct() {
-		builder.setElements(new StateDiagram());
+		builder.setElements(new StateDiagram_V1());
 		builder.setShape(600,600);
-		builder.setPosition(100,100);
+		builder.setPosition(100,70);
 		builder.setName("StateDiagram");
 		builder.setStyle("StateDiagramStyle1");
 		return builder.getResult();

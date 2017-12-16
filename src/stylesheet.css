@@ -26,3 +26,15 @@
     	-fx-stroke-dash-offset: 6;
     	-fx-stroke-line-cap: butt;
 }
+#StateDiagramStyle1{
+	-fx-border-color: #000000;
+	-fx-border-width: 3px;
+}
+
+#StateDiagramStyle2{
+	-fx-border-color: red;
+	-fx-border-width: 3px;
+}
+#img{
+	-fx-background-color: red;
+}

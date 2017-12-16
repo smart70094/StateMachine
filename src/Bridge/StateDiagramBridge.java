@@ -10,7 +10,7 @@ public interface StateDiagramBridge {
 	Transition createTransition();
 	StateDiagram createStateDiagram();
 	void rename(String name,DiagramElement de);
-	void remove();
+	void remove(DiagramElement parent ,DiagramElement children);
 	void undo();
 	void redo();
 }

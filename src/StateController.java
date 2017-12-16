@@ -1,10 +1,13 @@
 import java.util.HashMap;
 import Bridge.ClientBridge;
+import Bridge.StateDiagram_V1_Bridge;
 import Bridge.StateDiagram_V2_Bridge;
 import Model.DiagramElement;
 import Model.State;
+import Model.StateDiagram;
 import Model.Transition;
 import ViewModel.ArrowLineView;
+import ViewModel.StateDiagramView;
 import ViewModel.StateView;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -14,6 +17,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
 public class StateController {
 	ClientBridge clientBridge;
@@ -21,11 +25,13 @@ public class StateController {
 	StateMachineView stateMachineView;
 	ArrowLineView currentTransition;
 	StateView currentState;
+	StateDiagramView currentStateDiagram;
+	DiagramElement stateDiagram;
 	
-	//記錄arrow的元件與相對應的model
+	//記錄元件與相對應的model
 	HashMap<ArrowLineView,Transition> arrowMap=new HashMap<ArrowLineView,Transition>();
 	HashMap<StateView,State> stateMap=new HashMap<StateView,State>();
-	
+	HashMap<StateDiagramView,StateDiagram> stateDiagramMap=new HashMap<StateDiagramView,StateDiagram>();
 	
 	StateController(Stage stage){
 		this.stage=stage;
@@ -37,6 +43,11 @@ public class StateController {
 		//register event for each button
 		stateMachineView.addActionForTransitionBtn(new CreateTransitionAction());
 		stateMachineView.addActionStateBtn(new CreateStateAction());
+		stateMachineView.addActionStateDiagramBtn(new CreateStateDiagramAction());
+		
+		stateDiagram=clientBridge.createStateDiagram();
+		currentStateDiagram=createStateDiagram((StateDiagram)stateDiagram);
+		stateDiagramMap.put(currentStateDiagram, (StateDiagram)stateDiagram);
 	}
 	
 	
@@ -51,6 +62,7 @@ public class StateController {
 				
 			//register arrowLine
 			arrowView.addEventHandler(MouseEvent.MOUSE_PRESSED, new SelectTransitionAction());
+			arrowView.addEventHandler(MouseEvent.MOUSE_RELEASED, new SelectTransitionAction());
 			
 			//register move line
 			arrowView.addMoveForTransitionEvent(new MoveTransitionElementAction());
@@ -61,7 +73,9 @@ public class StateController {
 			//register text
 			arrowView.addMoveForTextEvent(new MoveAndRenameForTextAction());
 			
+			stateDiagram.add(arrowModel);
 			arrowMap.put(arrowView,arrowModel);
+			currentStateDiagram.getChildren().add(arrowView);
 		}
 	}
 	
@@ -76,8 +90,30 @@ public class StateController {
 			stateView.addEventHandler(MouseEvent.MOUSE_DRAGGED, new MoveStateAction());
 			stateView.addRenameForTextEvent(new RenameForState());
 			stateMap.put(stateView, state);
+			stateDiagram.add(state);
+			currentStateDiagram.getChildren().add(stateView);
 			
 		}
+	}
+	
+	//新增StateDiagram
+	class CreateStateDiagramAction implements EventHandler{
+		@SuppressWarnings("unchecked")
+		public void handle(Event e) {
+			StateDiagram stateDiagram=clientBridge.createStateDiagram();
+			StateDiagramView stateDiagramView=createStateDiagram(stateDiagram);
+			stateDiagramMap.put(stateDiagramView, stateDiagram);
+			stateDiagram.add(stateDiagram);
+		}
+	}
+	@SuppressWarnings("unchecked")
+	public StateDiagramView createStateDiagram(StateDiagram stateDiagram) {
+		StateDiagramView stateDiagramView=stateMachineView.createStateDiagram(stateDiagram);
+		stateDiagramView.addEventHandler(MouseEvent.MOUSE_PRESSED, new SelectStateDiagramAction());
+		stateDiagramView.addEventHandler(MouseEvent.MOUSE_DRAGGED, new MoveStateDiagramAction());
+		stateDiagramView.addEventHandler(MouseEvent.MOUSE_CLICKED, new DoubleClickStateDiagramAction());
+		stateDiagramView.addMoveForTextEvent(new RenameForStateDiagram());
+		return stateDiagramView;
 	}
 	
 	//取得被選取的Transtion
@@ -85,7 +121,7 @@ public class StateController {
 		public void handle(Event e) {
 			EventType eventType=e.getEventType();
 			if(eventType.equals(MouseEvent.MOUSE_PRESSED)) {
-				currentTransition=null;
+				
 				double mx=((MouseEvent) e).getSceneX();
 				double my=((MouseEvent) e).getSceneY();
 				double ox=((ArrowLineView) e.getSource()).getTranslateX();
@@ -93,11 +129,85 @@ public class StateController {
 				currentTransition=(ArrowLineView)(e.getSource());	
 				DiagramElement de=arrowMap.get(currentTransition);
 				de.draggedMoveFrom(mx, my,ox,oy);
+			}else if(eventType.equals(MouseEvent.MOUSE_RELEASED)) {
+				currentTransition=null;
 			}
 
 				
 		}
 	}
+	
+	//取得被選取的State
+	class SelectStateAction implements EventHandler{
+		public void handle(Event e) {
+			EventType eventType=e.getEventType();
+			if(eventType.equals(MouseEvent.MOUSE_PRESSED)) {
+				currentState=null;
+				double mx=((MouseEvent) e).getSceneX();
+				double my=((MouseEvent) e).getSceneY();
+				double ox=((StateView) e.getSource()).getTranslateX();
+				double oy=((StateView) e.getSource()).getTranslateY();
+				currentState=(StateView)(e.getSource());	
+				DiagramElement de=stateMap.get(currentState);
+				de.draggedMoveFrom(mx, my,ox,oy);
+			}else if(eventType.equals(MouseEvent.MOUSE_RELEASED)) {
+				currentState=null;
+			}
+		}
+	}
+	
+	//取得被選取的StateDiagram
+	class SelectStateDiagramAction implements EventHandler{
+		public void handle(Event e) {
+			EventType eventType=e.getEventType();
+			if(eventType.equals(MouseEvent.MOUSE_PRESSED)) {
+				double mx=((MouseEvent) e).getSceneX();
+				double my=((MouseEvent) e).getSceneY();
+				double ox=((StateDiagramView) e.getSource()).getTranslateX();
+				double oy=((StateDiagramView) e.getSource()).getTranslateY();
+				currentStateDiagram=(StateDiagramView)(e.getSource());	
+				DiagramElement de=stateDiagramMap.get(currentStateDiagram);
+				de.draggedMoveFrom(mx, my,ox,oy);
+				stateDiagram=de;
+			}
+		}
+	}
+	
+	//對StateDiagram double click設定大小
+	class DoubleClickStateDiagramAction implements EventHandler{
+		public void handle(Event e) {
+			MouseEvent mouseEvent=(MouseEvent)e;
+			if(mouseEvent.getClickCount()>=2) {
+				stateMachineView.showInputSizeDialog();
+				int reSizeArr[]=stateMachineView.getReSize();
+				int width=reSizeArr[0];
+				int height=reSizeArr[1];
+				System.out.println(width+","+height);
+				currentStateDiagram.setSize(width, height);
+			}
+		}
+	}
+	
+	//拖曳StateDiagram
+	class MoveStateDiagramAction implements EventHandler{
+		public void handle(Event e) {
+			if(currentStateDiagram!=null && (currentState==null && currentTransition==null)) {
+				DiagramElement de=stateDiagramMap.get(currentStateDiagram);
+				EventType eventType=e.getEventType();
+				double mx=((MouseEvent) e).getSceneX();
+				double my=((MouseEvent) e).getSceneY();							
+				if(eventType.equals(MouseEvent.MOUSE_DRAGGED)) {
+					double point[]=de.draggedMoveTo(mx, my);
+					currentStateDiagram.setTranslateX(point[0]);
+					currentStateDiagram.setTranslateY(point[1]);
+					
+					de.x=currentStateDiagram.getLayoutX();
+					de.y=currentStateDiagram.getLayoutY();
+				}
+			}
+		}
+	}
+	
 	//拖曳Transtion
 	class MoveTransitionElementAction implements EventHandler{
 		public void handle(Event e) {
@@ -118,23 +228,6 @@ public class StateController {
 		}
 	}
 	
-	
-	//取得被選取的State
-	class SelectStateAction implements EventHandler{
-		public void handle(Event e) {
-			EventType eventType=e.getEventType();
-			if(eventType.equals(MouseEvent.MOUSE_PRESSED)) {
-				currentState=null;
-				double mx=((MouseEvent) e).getSceneX();
-				double my=((MouseEvent) e).getSceneY();
-				double ox=((StateView) e.getSource()).getTranslateX();
-				double oy=((StateView) e.getSource()).getTranslateY();
-				currentState=(StateView)(e.getSource());	
-				DiagramElement de=stateMap.get(currentState);
-				de.draggedMoveFrom(mx, my,ox,oy);
-			}
-		}
-	}
 	//拖曳State
 	class MoveStateAction implements EventHandler{
 		public void handle(Event e) {
@@ -176,7 +269,8 @@ public class StateController {
 				}else if (eventType.equals(MouseEvent.MOUSE_CLICKED)) {	
 					String name=stateMachineView.showIinputDialog();
 					nameText.setText(name);
-					DiagramElement de=arrowMap.get(currentTransition);
+					currentTransition=(ArrowLineView) nameText.getParent();
+					DiagramElement de=arrowMap.get(currentTransition);				
 					clientBridge.rename(name, de);
 				} 
 			}
@@ -216,6 +310,22 @@ public class StateController {
 			}
 			
 			
+		}
+	}
+	
+	//更改StateDiagram名稱
+	class RenameForStateDiagram implements EventHandler{
+		public void handle(Event e) {
+			EventType eventType=e.getEventType();
+			if(e.getSource() instanceof Text) {
+				Text nameText=((Text) e.getSource());
+				if (eventType.equals(MouseEvent.MOUSE_CLICKED)) {	
+					String name=stateMachineView.showIinputDialog();
+					nameText.setText(name);
+					DiagramElement de=stateDiagramMap.get(currentStateDiagram);
+					clientBridge.rename(name, de);
+				}
+			}
 		}
 	}
 	

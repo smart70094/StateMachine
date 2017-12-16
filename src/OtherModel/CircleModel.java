@@ -1,7 +1,9 @@
 package OtherModel;
 
-public class CircleModel {
-	double radius,x,y;
+import Model.DiagramElement;
+
+public class CircleModel extends DiagramElement{
+	double radius;
 	CircleModel(){}
 	CircleModel(double radius,double x,double y){
 		this.radius=radius;

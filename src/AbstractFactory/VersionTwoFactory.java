@@ -3,6 +3,8 @@ package AbstractFactory;
 import Builder.DiagramElementBuilder;
 import Builder.DiagramElementSupervisor;
 import Builder.StateBuilder;
+import Builder.StateDiagramBuilder;
+import Builder.StateDiagram_V2_Supervisor;
 import Builder.State_V1_Supervisor;
 import Builder.State_V2_Supervisor;
 import Builder.TransitionBuilder;
@@ -22,7 +24,9 @@ public class VersionTwoFactory implements StateDiagramAbstractFactory{
 		return supervisor.construct();
 	}
 	public Object createStateDiagram() {
-		return null;
+		DiagramElementBuilder builder=new StateDiagramBuilder();
+		DiagramElementSupervisor supervisor=new StateDiagram_V2_Supervisor(builder);
+		return supervisor.construct();
 	}
 
 }

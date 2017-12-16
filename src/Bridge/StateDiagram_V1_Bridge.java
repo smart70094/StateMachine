@@ -3,6 +3,7 @@ package Bridge;
 import AbstractFactory.StateDiagramAbstractFactory;
 import AbstractFactory.VersionOneFactory;
 import Command.CreateStateCommand;
+import Command.CreateStateDiagramCommand;
 import Command.CreateTransitionCommand;
 import Command.RenameCommand;
 import Command.StateDiagramCommand;
@@ -33,14 +34,13 @@ public class StateDiagram_V1_Bridge implements StateDiagramBridge{
 
 	@Override
 	public StateDiagram_V1 createStateDiagram() {
-		
-		
-		return null;
+		StateDiagramCommand command=new CreateStateDiagramCommand(factory);
+		return (StateDiagram_V1) command.execute();
 	}
 
 	@Override
-	public void remove() {
-		// TODO Auto-generated method stub
+	public void remove(DiagramElement parent ,DiagramElement children) {
+		
 		
 	}
 

@@ -9,6 +9,16 @@ public abstract class DiagramElement {
 	double orgTranslateX=0;
 	double orgTranslateY=0;
 	
+	public void add(DiagramElement de) {
+		throw new UnsupportedOperationException();
+	}
+	public void remove(DiagramElement de) {
+		throw new UnsupportedOperationException();
+	}
+	public DiagramElement get(DiagramElement name) {
+		throw new UnsupportedOperationException();
+	}
+	
 	public void draggedMoveFrom(double mx,double my,double ox,double oy) {
 		orgSceneX = mx;
 	    orgSceneY = my;
