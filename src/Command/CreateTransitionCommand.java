@@ -1,19 +1,33 @@
 package Command;
 
 import AbstractFactory.StateDiagramAbstractFactory;
+import Model.State;
+import Model.StateDiagram;
+import Model.Transition;
 
 public class CreateTransitionCommand implements StateDiagramCommand{
 	StateDiagramAbstractFactory factory;
-	public CreateTransitionCommand(StateDiagramAbstractFactory factory){
+	StateDiagram targetStateDiagram,rootStateDiagram;
+	Transition transition;
+	
+	public CreateTransitionCommand(StateDiagramAbstractFactory factory,StateDiagram targetStateDiagram){
 		this.factory=factory;
+		this.targetStateDiagram=targetStateDiagram;
 	}
 	public Object execute() {
-		return factory.createTransition();
+		transition=(Transition)factory.createTransition();
+		targetStateDiagram.add(transition);
+		return transition;
 	}
 	@Override
 	public Object undo() {
-		// TODO Auto-generated method stub
-		return null;
+		targetStateDiagram=(StateDiagram) rootStateDiagram.get(targetStateDiagram);
+		targetStateDiagram.remove(transition);
+		return rootStateDiagram;
+	}
+	@Override
+	public void setRootStateDiagram(StateDiagram sd) {
+		rootStateDiagram=sd;
 	}
 
 

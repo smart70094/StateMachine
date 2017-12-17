@@ -13,7 +13,7 @@ public abstract class DiagramElement {
 	public void add(DiagramElement diagramElement) {
 		throw new UnsupportedOperationException();
 	}
-	public void add(DiagramElement diagramElement,DiagramElement targetDiagramElement) {
+	public void add(DiagramElement root,DiagramElement parent,DiagramElement node) {
 		throw new UnsupportedOperationException();
 	}
 	public void remove(DiagramElement diagramElement) {
@@ -22,6 +22,18 @@ public abstract class DiagramElement {
 	public DiagramElement get(DiagramElement diagramElement) {
 		throw new UnsupportedOperationException();
 	}
+	
+	
+	public void searchParent(DiagramElement diagramElement) {
+		throw new UnsupportedOperationException();
+	}
+	public DiagramElement getParent(DiagramElement diagramElement) {
+		throw new UnsupportedOperationException();
+	}
+	
+	//以DiagramElement的生命週期蒐集存放資料(leaf、component)
+	public static String info="";
+	public abstract void printInfo();
 	
 	public void draggedMoveFrom(double mx,double my,double ox,double oy) {
 		orgSceneX = mx;
@@ -45,8 +57,5 @@ public abstract class DiagramElement {
 		if(mx>1030 && mx<1080 && my>718 && my<768)
 			return true;
 		return false;
-			
-		
-		
 	}
 }

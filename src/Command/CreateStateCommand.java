@@ -8,9 +8,7 @@ public class CreateStateCommand implements StateDiagramCommand{
 	StateDiagramAbstractFactory factory;
 	StateDiagram targetStateDiagram,rootStateDiagram;
 	State state;
-	public CreateStateCommand(StateDiagramAbstractFactory factory){
-		this.factory=factory;
-	}
+
 	public CreateStateCommand(StateDiagramAbstractFactory factory,StateDiagram targetStateDiagram){
 		this.factory=factory;
 		this.targetStateDiagram=targetStateDiagram;
@@ -24,16 +22,12 @@ public class CreateStateCommand implements StateDiagramCommand{
 	public Object undo() {
 		targetStateDiagram=(StateDiagram) rootStateDiagram.get(targetStateDiagram);
 		targetStateDiagram.remove(state);
-		return null;
+		return rootStateDiagram;
 	}
 	public Object redo() {
 		targetStateDiagram=(StateDiagram) rootStateDiagram.get(targetStateDiagram);
 		targetStateDiagram.add(state);
 		return null;
-	}
-	@Override
-	public Object getRootStateDiagram() {
-		return rootStateDiagram;
 	}
 	@Override
 	public void setRootStateDiagram(StateDiagram sd) {

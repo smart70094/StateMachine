@@ -6,6 +6,6 @@ public interface StateDiagramCommand {
 	Object execute();
 	Object undo();
 	
-	Object getRootStateDiagram();
+	/*Object getRootStateDiagram();*/
 	void setRootStateDiagram(StateDiagram sd);
 }

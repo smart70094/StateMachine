@@ -25,17 +25,26 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 
 public class StateController {
-	ClientBridge clientBridge;
 	Stage stage;
+	
+	ClientBridge clientBridge;
+	DiagramCareTaker diagramCareTaker;
+	//view
+	//主要介面
 	StateMachineView stateMachineView;
+	//選取中的transition
 	ArrowLineView currentTransition;
+	//選取中的transition
 	StateView currentState;
+	//操作中的StateDiagram View
 	StateDiagramView currentStateDiagramView;
 	
-	DiagramElement stateDiagram;
-	DiagramElement rootStateDiagram;
+	//model
+	//操作中的StateDiagram model
+	StateDiagram stateDiagram;
+	//root
+	StateDiagram root;
 	
-	DiagramCareTaker diagramCareTaker;
 	//記錄元件與相對應的model
 	HashMap<ArrowLineView,Transition> arrowMap=new HashMap<ArrowLineView,Transition>();
 	HashMap<StateView,State> stateMap=new HashMap<StateView,State>();
@@ -45,6 +54,7 @@ public class StateController {
 		this.stage=stage;
 		clientBridge=new ClientBridge(new StateDiagram_V1_Bridge());
 		diagramCareTaker=new DiagramCareTaker();
+		root=new StateDiagram();
 	}
 	void start() throws Exception {
 		stateMachineView=StateMachineView.getInstance();
@@ -56,18 +66,15 @@ public class StateController {
 		stateMachineView.addActionUndoBtn(new UndoAction());
 		
 		
-		rootStateDiagram=clientBridge.createStateDiagram();
-		
-		stateDiagram=clientBridge.createStateDiagram();
+		stateDiagram=clientBridge.createStateDiagram(root);
 		currentStateDiagramView=createStateDiagram((StateDiagram)stateDiagram,null);
 		stateDiagramMap.put(currentStateDiagramView, (StateDiagram)stateDiagram);
-		rootStateDiagram.add(stateDiagram);
 	}
 	
 	boolean detectCollision(DiagramElement de,double mx,double my) {
 		if(de.detectCollision(mx, my)) {
 			if(stateMachineView.showCheckRemoveDialog()) {
-				clientBridge.remove(rootStateDiagram,de);
+				clientBridge.remove(root,de);
 				return true;
 			}else {
 				return false;
@@ -78,12 +85,17 @@ public class StateController {
 	//儲存create的狀態
 	void save(String cmd,Group g) {
 		Record r=new Record(cmd,currentStateDiagramView,g);
-		diagramCareTaker.add(r.createMemento());
+		diagramCareTaker.addDiagramViewMemento(r.createMemento());
 	}
 	//儲存重新命名的狀態
 	void save(String cmd,Group g,String context) {
 		Record r=new Record(cmd,g,context);
-		diagramCareTaker.add(r.createMemento());
+		diagramCareTaker.addDiagramViewMemento(r.createMemento());
+	}
+	
+	void save(String cmd,DiagramElement de,Group g) {
+		Record r=new Record(cmd,de,g);
+		diagramCareTaker.addDiagramViewMemento(r.createMemento());
 	}
 	//Event Class
 	
@@ -91,7 +103,7 @@ public class StateController {
 	class CreateTransitionAction implements EventHandler{
 		@SuppressWarnings("unchecked")
 		public void handle(Event e) {
-			Transition arrowModel=clientBridge.createTransition();	
+			Transition arrowModel=clientBridge.createTransition(stateDiagram);
 			ArrowLineView arrowView=stateMachineView.createTransition(arrowModel);
 				
 			//register arrowLine
@@ -107,7 +119,6 @@ public class StateController {
 			//register text
 			arrowView.addMoveForTextEvent(new MoveAndRenameForTextAction());
 			
-			stateDiagram.add(arrowModel);
 			arrowMap.put(arrowView,arrowModel);
 			currentStateDiagramView.getChildren().add(arrowView);
 			save("createTransition",arrowView);
@@ -118,14 +129,16 @@ public class StateController {
 	class CreateStateAction implements EventHandler{
 		@SuppressWarnings("unchecked")
 		public void handle(Event e) {
-			State state=clientBridge.createState();
+			State state=clientBridge.createState(stateDiagram);
+			root.printInfo();
+			
 			StateView stateView=stateMachineView.createState(state);
 			stateView.addEventHandler(MouseEvent.MOUSE_PRESSED, new SelectStateAction());
 			stateView.addEventHandler(MouseEvent.MOUSE_RELEASED, new SelectStateAction());
 			stateView.addEventHandler(MouseEvent.MOUSE_DRAGGED, new MoveStateAction());
 			stateView.addRenameForTextEvent(new RenameForState());
 			stateMap.put(stateView, state);
-			stateDiagram.add(state);
+			
 			currentStateDiagramView.getChildren().add(stateView);
 			save("createState",stateView);
 		}
@@ -135,17 +148,21 @@ public class StateController {
 	class CreateStateDiagramAction implements EventHandler{
 		@SuppressWarnings("unchecked")
 		public void handle(Event e) {
-			StateDiagram sd=clientBridge.createStateDiagram();
-			StateDiagramView stateDiagramView=createStateDiagram(sd,currentStateDiagramView.pane);
+			StateDiagram sd=clientBridge.createStateDiagram(stateDiagram);
+			
+			
+			
+			StateDiagramView stateDiagramView=createStateDiagram(sd,currentStateDiagramView);
+			stateDiagramView.lastStateDiagram=currentStateDiagramView;
+			currentStateDiagramView=stateDiagramView;
 			stateDiagramMap.put(stateDiagramView, sd);
-			stateDiagram.add(sd);
 			stateDiagram=sd;
 			save("createStateDiagram",stateDiagramView);
 		}
 	}
 	@SuppressWarnings("unchecked")
-	public StateDiagramView createStateDiagram(StateDiagram stateDiagram,AnchorPane pane) {
-		StateDiagramView stateDiagramView=stateMachineView.createStateDiagram(stateDiagram,null);
+	public StateDiagramView createStateDiagram(StateDiagram stateDiagram,StateDiagramView lastStateDiagramView) {
+		StateDiagramView stateDiagramView=stateMachineView.createStateDiagram(stateDiagram,lastStateDiagramView);
 		stateDiagramView.addEventHandler(MouseEvent.MOUSE_PRESSED, new SelectStateDiagramAction());
 		stateDiagramView.addEventHandler(MouseEvent.MOUSE_DRAGGED, new MoveStateDiagramAction());
 		stateDiagramView.addEventHandler(MouseEvent.MOUSE_CLICKED, new DoubleClickStateDiagramAction());
@@ -205,7 +222,7 @@ public class StateController {
 				currentStateDiagramView=(StateDiagramView)(e.getSource());	
 				DiagramElement de=stateDiagramMap.get(currentStateDiagramView);
 				de.draggedMoveFrom(mx, my,ox,oy);
-				stateDiagram=de;
+				stateDiagram=(StateDiagram) de;
 			}
 		}
 	}
@@ -241,10 +258,13 @@ public class StateController {
 					de.x=currentStateDiagramView.getLayoutX();
 					de.y=currentStateDiagramView.getLayoutY();
 					if(detectCollision(de,mx,my)) {
-						stateMachineView.removeStateDiagram(currentStateDiagramView);
+						save("removeStateDiagram",de,currentStateDiagramView);
 						StateDiagramView t=currentStateDiagramView;
+						stateMachineView.removeStateDiagram(currentStateDiagramView);
 						currentStateDiagramView=t.lastStateDiagram;
 						stateDiagramMap.remove(t);
+						
+						
 					}
 				}
 			}
@@ -269,6 +289,7 @@ public class StateController {
 					
 					if(detectCollision(de,mx,my)) {
 						currentStateDiagramView.getChildren().remove(currentTransition);
+						clientBridge.remove(stateDiagram, de);
 						arrowMap.remove(currentTransition);
 					}
 				}
@@ -293,7 +314,10 @@ public class StateController {
 					de.y=currentState.getLayoutY();
 					if(detectCollision(de,mx,my)) {
 						currentStateDiagramView.getChildren().remove(currentState);
-						stateMap.remove(currentState);
+						clientBridge.remove(stateDiagram, de);
+						stateMap.remove(currentState);		
+						//clientBridge.remove(rootStateDiagram.searchParent(de), de);
+						
 					}
 					
 				}
@@ -394,43 +418,7 @@ public class StateController {
 		}
 	}
 	
-	
 	//調整Transition start
-	/*class ResizeStartTransitionAction implements EventHandler{
-		double lx,ly;
-		boolean isFirst=false;
-		public void handle(Event e) {
-			EventType eventType=e.getEventType();
-			if(e.getSource() instanceof Circle && eventType.equals(MouseEvent.MOUSE_PRESSED)) {
-				double ox=((Circle) e.getSource()).getTranslateX();
-				double oy=((Circle) e.getSource()).getTranslateY();
-				lx=ox;
-				ly=oy;
-				isFirst=true;
-			}
-			
-			if(currentTransition!=null && e.getSource() instanceof Circle) {
-				Transition arrowModel=arrowMap.get(currentTransition);
-				
-				double mx=((MouseEvent) e).getSceneX();
-				double my=((MouseEvent) e).getSceneY();
-				if(isFirst) {
-					arrowModel.textModel.draggedMoveFrom(mx, my,lx,ly);
-					isFirst=false;
-				}
-				double point[]=arrowModel.textModel.draggedMoveTo(mx, my);
-				currentTransition.repaintStartCircle(point[0], point[1],mx,my);
-	
-				arrowModel.mainLine.sx=currentTransition.line.getStartX();
-				arrowModel.mainLine.sy=currentTransition.line.getStartY();
-				arrowModel.mainLine.ex=currentTransition.line.getEndX();
-				arrowModel.mainLine.ey=currentTransition.line.getEndY();
-				arrowModel.repaintArrow();
-				currentTransition.repaintArrow(arrowModel.arrow1,arrowModel.arrow2);
-			}
-		}
-	}*/
-	
 	class ResizeStartTransitionAction implements EventHandler{
 		public void handle(Event e) {
 			if(currentTransition!=null && e.getSource() instanceof Circle) {
@@ -470,13 +458,14 @@ public class StateController {
 			try {
 				DiagramMemento memento;
 				StateDiagramView stateDiagramView;
+				StateDiagram stateDiagram;
 				StateView stateView;
 				ArrowLineView transitionView;
 				String strArr[];
 				String lastName;
-				memento = diagramCareTaker.get();
+				memento = diagramCareTaker.getDiagramViewMemento();
 				if(memento!=null) {
-					Record record=memento.getRecord();
+					Record record=(Record) memento.get();
 					String cmd=record.getCmd();
 					switch(cmd) {
 						case "createState":
@@ -514,71 +503,22 @@ public class StateController {
 							lastName=strArr[1];
 							stateDiagramView.nameText.setText(lastName);
 							break;
+						case "removeStateDiagram":
+							stateDiagramView=((StateDiagramView)record.getNode()).lastStateDiagram;
+							stateDiagramView.getChildren().add(record.getNode());
+							stateDiagramView=(StateDiagramView) record.getNode();
+							stateDiagramMap.put(stateDiagramView, (StateDiagram) record.getDiagramElement());
+							break;
 					}
+					root=clientBridge.undo(root);
+					System.out.println(root.getInfo());
 				}
 			} catch (CloneNotSupportedException e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
-	//Redo
-	class RedoAction implements EventHandler{
-		public void handle(Event arg0) {
-			try {
-				DiagramMemento memento;
-				StateDiagramView stateDiagramView;
-				StateView stateView;
-				ArrowLineView transitionView;
-				String strArr[];
-				String lastName;
-				memento = diagramCareTaker.get();
-				if(memento!=null) {
-					Record record=memento.getRecord();
-					String cmd=record.getCmd();
-					switch(cmd) {
-						case "createState":
-							stateView=(StateView)record.getNode();
-							stateDiagramView=(StateDiagramView)record.getParentNode();
-							stateDiagramView.getChildren().remove(stateView);
-							stateMap.remove(stateView);
-							break;
-						case "createTransition":
-							transitionView=(ArrowLineView)record.getNode();
-							stateDiagramView=(StateDiagramView)record.getParentNode();
-							stateDiagramView.getChildren().remove(transitionView);
-							arrowMap.remove(transitionView);
-							break;
-						case "createStateDiagram":
-							stateDiagramView=(StateDiagramView)record.getNode();
-							stateMachineView.removeStateDiagram(stateDiagramView);
-							stateDiagramMap.remove(stateMachineView);
-							break;
-						case "renameState":
-							stateView=(StateView)record.getNode();
-							strArr=record.getContext().split(",");
-							lastName=strArr[1];
-							stateView.nameText.setText(lastName);
-							break;
-						case "renameTransition":
-							transitionView=(ArrowLineView)record.getNode();
-							strArr=record.getContext().split(",");
-							lastName=strArr[1];
-							transitionView.nameText.setText(lastName);
-							break;
-						case "renameStateDiagram":
-							stateDiagramView=(StateDiagramView)record.getNode();
-							strArr=record.getContext().split(",");
-							lastName=strArr[1];
-							stateDiagramView.nameText.setText(lastName);
-							break;
-					}
-				}
-			} catch (CloneNotSupportedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+
 }
 
 

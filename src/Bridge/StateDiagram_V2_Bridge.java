@@ -9,6 +9,7 @@ import Command.RemoveCommand;
 import Command.RenameCommand;
 import Command.StateDiagramCommand;
 import Model.DiagramElement;
+import Model.State;
 import Model.StateDiagram;
 import Model.StateDiagram_V2;
 import Model.State_V2;
@@ -20,10 +21,10 @@ StateDiagramAbstractFactory factory;
 	public StateDiagram_V2_Bridge() {
 		factory=new VersionTwoFactory();
 	}
-
+	
 	@Override
-	public State_V2 createState() {
-		StateDiagramCommand command=new CreateStateCommand(factory);
+	public State createState(StateDiagram sd) {
+		StateDiagramCommand command=new CreateStateCommand(factory,sd);
 		return (State_V2) command.execute();
 	}
 
@@ -63,6 +64,4 @@ StateDiagramAbstractFactory factory;
 		// TODO Auto-generated method stub
 		
 	}
-
-
 }

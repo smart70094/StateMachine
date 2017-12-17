@@ -1,17 +1,15 @@
 package Memento;
 
 public class DiagramMemento implements Cloneable{
-	private Record record;
-	public DiagramMemento(Record record) {
-		this.record=record;
+	private Object memento;
+	public DiagramMemento(Object memento) {
+		this.memento=memento;
 	}
-	public Record getRecord() {
-		return record;
+	public Object get() {
+		return memento;
 	}
 	public DiagramMemento clone() throws CloneNotSupportedException {
 		DiagramMemento diagramMemento = (DiagramMemento) super.clone();
-		if (this.record != null)
-			diagramMemento.record = (Record) this.record.clone();
 		return diagramMemento;
 	}
 	

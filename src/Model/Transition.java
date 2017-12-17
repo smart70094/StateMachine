@@ -70,4 +70,9 @@ public class Transition extends DiagramElement{
 			}
 			return mathstr;
 	}
+	
+	public void printInfo() {
+		info=info+name+"\n";
+		//System.out.println(name);
+	}
 }

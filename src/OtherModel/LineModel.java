@@ -11,4 +11,8 @@ public class LineModel extends DiagramElement{
 		this.ex=ex;
 		this.ey=ey;
 	}
+	@Override
+	public void printInfo() {
+		
+	}
 }

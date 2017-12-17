@@ -10,4 +10,8 @@ public class CircleModel extends DiagramElement{
 		this.x=x;
 		this.y=y;
 	}
+	@Override
+	public void printInfo() {
+		
+	}
 }

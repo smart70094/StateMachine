@@ -6,11 +6,11 @@ import Model.StateDiagram;
 import Model.Transition;
 
 public interface StateDiagramBridge {
-	State createState();
-	Transition createTransition();
-	StateDiagram createStateDiagram();
+	State createState(StateDiagram sd);
+	Transition createTransition(StateDiagram sd);
+	StateDiagram createStateDiagram(StateDiagram sd);
 	void rename(String name,DiagramElement de);
 	void remove(DiagramElement parent ,DiagramElement children);
-	void undo();
+	StateDiagram undo(StateDiagram sd);
 	void redo();
 }

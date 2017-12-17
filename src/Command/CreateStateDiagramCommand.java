@@ -1,21 +1,37 @@
 package Command;
 
 import AbstractFactory.StateDiagramAbstractFactory;
+import Model.State;
+import Model.StateDiagram;
 
 public class CreateStateDiagramCommand implements StateDiagramCommand{
 	StateDiagramAbstractFactory factory;
-	public CreateStateDiagramCommand(StateDiagramAbstractFactory factory) {
+	StateDiagram targetStateDiagram,rootStateDiagram;
+	StateDiagram stateDiagram;
+	public CreateStateDiagramCommand(StateDiagramAbstractFactory factory,StateDiagram targetStateDiagram){
 		this.factory=factory;
+		this.targetStateDiagram=targetStateDiagram;
 	}
 	@Override
 	public Object execute() {
-		return factory.createStateDiagram();
+		stateDiagram=(StateDiagram)factory.createStateDiagram();
+		targetStateDiagram.add(stateDiagram);
+		return stateDiagram;
 	}
 	@Override
 	public Object undo() {
-		// TODO Auto-generated method stub
-		return null;
+		targetStateDiagram=(StateDiagram) rootStateDiagram.get(targetStateDiagram);
+		if(targetStateDiagram!=null) 
+			targetStateDiagram.remove(stateDiagram);
+		else
+			rootStateDiagram.remove(targetStateDiagram);
+		return rootStateDiagram;
 	}
+	@Override
+	public void setRootStateDiagram(StateDiagram sd) {
+		rootStateDiagram=sd;
+	}
+
 	
 
 }

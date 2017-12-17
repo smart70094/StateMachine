@@ -13,20 +13,23 @@ public class ClientBridge {
 	public void setBridge(StateDiagramBridge bridge) {
 		this.bridge=bridge;
 	}
-	public Transition createTransition() {
-		return bridge.createTransition();
+	public Transition createTransition(StateDiagram sd) {
+		return bridge.createTransition(sd);
 	}
-	public State createState() {
-		return bridge.createState();
+	public State createState(StateDiagram sd) {
+		return bridge.createState(sd);
 	}
-	public StateDiagram createStateDiagram() {
-		return bridge.createStateDiagram();
+	public StateDiagram createStateDiagram(StateDiagram sd) {
+		return bridge.createStateDiagram(sd);
 	}
 	public void rename(String name,DiagramElement de) {
 		bridge.rename(name,de);
 	}
 	public void remove(DiagramElement parent ,DiagramElement children) {
 		bridge.remove(parent,children);
+	}
+	public StateDiagram undo(StateDiagram sd) {
+		return bridge.undo(sd);
 	}
 	
 }

@@ -4,14 +4,27 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 public class DiagramCareTaker {
-	Stack<DiagramMemento> stack;
+	Stack<DiagramMemento> viewStack;
+	Stack<DiagramMemento> modelStack;
+	
 	public DiagramCareTaker() {
-		stack=new Stack<DiagramMemento>();
+		viewStack=new Stack<DiagramMemento>();
+		modelStack=new Stack<DiagramMemento>();
 	}
-	public void add(DiagramMemento m) {
-		stack.push(m);
+	
+	//View
+	public void addDiagramViewMemento(DiagramMemento m) {
+		viewStack.push(m);
 	}
-	public DiagramMemento get() throws CloneNotSupportedException {
-		return (!stack.empty())?(DiagramMemento)stack.pop().clone():null;
+	public DiagramMemento getDiagramViewMemento() throws CloneNotSupportedException {
+		return (!viewStack.empty())?(DiagramMemento)viewStack.pop().clone():null;
+	}
+	
+	//Model
+	public void addDiagramModelMemento(DiagramMemento m) {
+		modelStack.push(m);
+	}
+	public DiagramMemento getDiagramModelMemento() throws CloneNotSupportedException {
+		return (!modelStack.empty())?(DiagramMemento)modelStack.pop().clone():null;
 	}
 }

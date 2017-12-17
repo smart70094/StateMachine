@@ -108,12 +108,8 @@ public class StateMachineView extends Application{
 		return stateDiagramView;
 	}
 	void removeStateDiagram(StateDiagramView stateDiagramView) {
-		StateDiagramView lastStateDiagram=stateDiagramView.lastStateDiagram;
-		if(lastStateDiagram==null) {
-			root.getChildren().remove(stateDiagramView);
-		}else {
-			lastStateDiagram.getChildren().remove(stateDiagramView);
-		}
+		//StateDiagramView lastStateDiagram=stateDiagramView.lastStateDiagram;
+		root.getChildren().remove(stateDiagramView);
 	}
 	
 	//register event
