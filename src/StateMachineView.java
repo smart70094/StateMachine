@@ -43,6 +43,7 @@ public class StateMachineView extends Application{
 	private Button stateDiagramBtn;
 	private Button undoBtn;
 	private Button redoBtn;
+	private Button infoBtn;
 	
 	private ImageView img;
 	
@@ -70,6 +71,8 @@ public class StateMachineView extends Application{
 		stateBtn=new Button("State");
 		undoBtn=new Button("undo");
 		redoBtn=new Button("redo");
+		infoBtn=new Button("info");
+		infoBtn.setLayoutY(250);
 		redoBtn.setLayoutY(200);
 		undoBtn.setLayoutY(150);
 		stateBtn.setLayoutY(50);
@@ -86,7 +89,7 @@ public class StateMachineView extends Application{
 		img.setLayoutX(1080-50);
 		img.setLayoutY(768-50);
 
-		
+		root.getChildren().add(infoBtn);
 		root.getChildren().add(undoBtn);
 		root.getChildren().add(redoBtn);
 		root.getChildren().add(transitionBtn);
@@ -149,6 +152,11 @@ public class StateMachineView extends Application{
 	@SuppressWarnings("unchecked")
 	void addActionRedoBtn(EventHandler e) {
 		redoBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, e);
+	}
+	
+	@SuppressWarnings("unchecked")
+	void addActionInfoBtn(EventHandler e) {
+		infoBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, e);
 	}
 	
 	
@@ -245,8 +253,23 @@ public class StateMachineView extends Application{
 		    return false;
 		}
 	}
-	boolean showInputNoteDialog() {
+	String note;
+	void showInputNoteDialog() {
+		TextInputDialog dialog = new TextInputDialog("");
+		dialog.setTitle("Message");
+		dialog.setHeaderText("請輸入註解");
 		
-		return false;
+
+		// Traditional way to get the response value.
+		Optional<String> result = dialog.showAndWait();
+		if (result.isPresent()){
+			note= result.get();
+		}
+
+
+	}
+	public String getNote() {
+		showInputNoteDialog();
+		return note;
 	}
 }
