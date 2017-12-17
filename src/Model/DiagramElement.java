@@ -2,7 +2,7 @@ package Model;
 
 public abstract class DiagramElement {
 	public double x,y;
-	public String name,style;
+	public String name,style,note;
 	static int countID=0;
 	private int id=countID++;
 	double orgSceneX=0;

@@ -54,7 +54,7 @@ public class StateController {
 	
 	StateController(Stage stage){
 		this.stage=stage;
-		clientBridge=new ClientBridge(new StateDiagram_V1_Bridge());
+		clientBridge=new ClientBridge(new StateDiagram_V2_Bridge(new DiagramCareTaker()));
 		diagramCareTaker=new DiagramCareTaker();
 		root=new StateDiagram();
 	}
@@ -236,10 +236,12 @@ public class StateController {
 			if(mouseEvent.getClickCount()>=2) {
 				stateMachineView.showInputSizeDialog();
 				int reSizeArr[]=stateMachineView.getReSize();
-				int width=reSizeArr[0];
-				int height=reSizeArr[1];
-				System.out.println(width+","+height);
-				currentStateDiagramView.setSize(width, height);
+				if(reSizeArr!=null) {
+					int width=reSizeArr[0];
+					int height=reSizeArr[1];
+					System.out.println(width+","+height);
+					currentStateDiagramView.setSize(width, height);
+				}
 			}
 		}
 	}

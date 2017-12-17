@@ -21,9 +21,9 @@ import Model.Transition_V1;
 public class StateDiagram_V1_Bridge implements StateDiagramBridge{
 	StateDiagramAbstractFactory factory;
 	DiagramCareTaker diagramCareTaker;
-	public StateDiagram_V1_Bridge() {
+	public StateDiagram_V1_Bridge(DiagramCareTaker diagramCareTaker) {
 		factory=new VersionOneFactory();
-		diagramCareTaker=new DiagramCareTaker();
+		this.diagramCareTaker=diagramCareTaker;
 	}
 	
 	@Override

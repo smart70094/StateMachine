@@ -245,4 +245,8 @@ public class StateMachineView extends Application{
 		    return false;
 		}
 	}
+	boolean showInputNoteDialog() {
+		
+		return false;
+	}
 }
