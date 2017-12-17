@@ -22,8 +22,8 @@ public class ClientBridge {
 	public StateDiagram createStateDiagram(StateDiagram sd) {
 		return bridge.createStateDiagram(sd);
 	}
-	public void rename(String name,DiagramElement de) {
-		bridge.rename(name,de);
+	public void rename(String name,DiagramElement de,StateDiagram root,StateDiagram sd) {
+		bridge.rename(name,de,root,sd);
 	}
 	public void remove(DiagramElement root ,DiagramElement children) {
 		DiagramElement parent=root.getParent(children);
@@ -32,6 +32,9 @@ public class ClientBridge {
 	}
 	public StateDiagram undo(StateDiagram sd) {
 		return bridge.undo(sd);
+	}
+	public StateDiagram redo(StateDiagram sd) {
+		return bridge.redo(sd);
 	}
 	
 }

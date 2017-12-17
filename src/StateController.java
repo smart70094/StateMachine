@@ -66,6 +66,7 @@ public class StateController {
 		stateMachineView.addActionStateBtn(new CreateStateAction());
 		stateMachineView.addActionStateDiagramBtn(new CreateStateDiagramAction());
 		stateMachineView.addActionUndoBtn(new UndoAction());
+		stateMachineView.addActionRedoBtn(new RedoAction());
 		
 		
 		stateDiagram=clientBridge.createStateDiagram(root);
@@ -76,7 +77,6 @@ public class StateController {
 	boolean detectCollision(DiagramElement de,double mx,double my) {
 		if(de.detectCollision(mx, my)) {
 			if(stateMachineView.showCheckRemoveDialog()) {
-				clientBridge.remove(root,de);
 				return true;
 			}else {
 				return false;
@@ -84,7 +84,7 @@ public class StateController {
 		}
 		return false;
 	}
-	//儲存create的狀態
+	//儲存create、remove的狀態
 	void save(String cmd,Group g,DiagramElement diagramElement) {
 		Record r=new Record(cmd,currentStateDiagramView,g,diagramElement);
 		diagramCareTaker.addDiagramViewMemento(r.createMemento());
@@ -95,10 +95,7 @@ public class StateController {
 		diagramCareTaker.addDiagramViewMemento(r.createMemento());
 	}
 	
-	void save(String cmd,DiagramElement de,Group g) {
-		Record r=new Record(cmd,de,g);
-		diagramCareTaker.addDiagramViewMemento(r.createMemento());
-	}
+
 	//Event Class
 	
 	//新增Transition
@@ -144,7 +141,8 @@ public class StateController {
 			
 			currentStateDiagramView.getChildren().add(stateView);
 			save("createState",stateView,state);
-			
+
+			System.out.println(root.getInfo());
 		}
 	}
 	
@@ -201,7 +199,6 @@ public class StateController {
 		public void handle(Event e) {
 			EventType eventType=e.getEventType();
 			if(eventType.equals(MouseEvent.MOUSE_PRESSED)) {
-				currentState=null;
 				double mx=((MouseEvent) e).getSceneX();
 				double my=((MouseEvent) e).getSceneY();
 				double ox=((StateView) e.getSource()).getTranslateX();
@@ -263,7 +260,7 @@ public class StateController {
 					de.x=currentStateDiagramView.getLayoutX();
 					de.y=currentStateDiagramView.getLayoutY();
 					if(detectCollision(de,mx,my)) {
-						save("removeStateDiagram",de,currentStateDiagramView);
+						save("removeStateDiagram",currentStateDiagramView,de);
 						StateDiagramView t=currentStateDiagramView;
 						stateMachineView.removeStateDiagram(currentStateDiagramView);
 						currentStateDiagramView=t.lastStateDiagram;
@@ -292,9 +289,11 @@ public class StateController {
 					de.y=currentTransition.getLayoutY();
 					
 					if(detectCollision(de,mx,my)) {
+						save("removeTransition",currentTransition,de);
 						currentStateDiagramView.getChildren().remove(currentTransition);
 						clientBridge.remove(stateDiagram, de);
 						arrowMap.remove(currentTransition);
+						
 					}
 				}
 			}
@@ -317,11 +316,10 @@ public class StateController {
 					de.x=currentState.getLayoutX();
 					de.y=currentState.getLayoutY();
 					if(detectCollision(de,mx,my)) {
-						currentStateDiagramView.getChildren().remove(currentState);
-						clientBridge.remove(stateDiagram, de);
-						stateMap.remove(currentState);		
+						save("removeState",currentState,de);
 						clientBridge.remove(root, de);
-						
+						currentStateDiagramView.getChildren().remove(currentState);
+						stateMap.remove(currentState);		
 					}
 					
 				}
@@ -354,7 +352,7 @@ public class StateController {
 						nameText.setText(name);
 						currentTransition=(ArrowLineView) nameText.getParent();
 						DiagramElement de=arrowMap.get(currentTransition);				
-						clientBridge.rename(name, de);
+						clientBridge.rename(name, de,root,stateDiagram);
 						save("renameTransition",(ArrowLineView)nameText.getParent(),name+","+lastName);
 					}
 				} 
@@ -374,7 +372,7 @@ public class StateController {
 					currentTransition.nameText.setTranslateX(point[0]);
 					currentTransition.nameText.setTranslateY(point[1]);
 				}else if(eventType.equals(MouseEvent.MOUSE_CLICKED)) {
-					System.out.println("test");
+					
 				}
 			}
 		}
@@ -391,7 +389,7 @@ public class StateController {
 						String lastName=nameText.getText();
 						nameText.setText(name);
 						DiagramElement de=stateMap.get(nameText.getParent());
-						clientBridge.rename(name, de);
+						clientBridge.rename(name, de,root,stateDiagram);
 						save("renameState",(StateView)nameText.getParent(),name+","+lastName);
 					}
 				}
@@ -413,7 +411,7 @@ public class StateController {
 						String lastName=nameText.getText();
 						nameText.setText(name);
 						DiagramElement de=stateDiagramMap.get(currentStateDiagramView);
-						clientBridge.rename(name, de);
+						clientBridge.rename(name, de,root,stateDiagram);
 						save("renameStateDiagram",(StateDiagramView)nameText.getParent(),name+","+lastName);
 					}
 				}
@@ -466,7 +464,7 @@ public class StateController {
 				ArrowLineView transitionView;
 				String strArr[];
 				String lastName;
-				memento = diagramCareTaker.getDiagramViewMemento();
+				memento = diagramCareTaker.getDiagramViewUndoMemento();
 				if(memento!=null) {
 					Record record=(Record) memento.get();
 					String cmd=record.getCmd();
@@ -508,10 +506,22 @@ public class StateController {
 							lastName=strArr[1];
 							stateDiagramView.nameText.setText(lastName);
 							break;
-							
 						case "removeStateDiagram":
-							stateDiagramView=stateMachineView.add((StateDiagramView)record.getNode());
-							stateDiagramMap.put(stateDiagramView, (StateDiagram) record.getDiagramElement());
+							currentStateDiagramView=stateMachineView.add((StateDiagramView)record.getNode());
+							stateDiagramMap.put(currentStateDiagramView, (StateDiagram) record.getDiagramElement());
+							stateDiagram=stateDiagramMap.get(currentStateDiagramView);
+							break;
+						case "removeState":
+							stateView=(StateView)record.getNode();
+							stateDiagramView=(StateDiagramView)record.getParentNode();
+							stateDiagramView.getChildren().add(stateView);
+							stateMap.put(stateView,(State) record.getDiagramElement());
+							break;
+						case "removeTransition":
+							transitionView=(ArrowLineView)record.getNode();
+							stateDiagramView=(StateDiagramView)record.getParentNode();
+							stateDiagramView.getChildren().add(transitionView);
+							arrowMap.put(transitionView,(Transition) record.getDiagramElement());
 							break;
 					}
 					root=clientBridge.undo(root);
@@ -532,8 +542,8 @@ public class StateController {
 					StateView stateView;
 					ArrowLineView transitionView;
 					String strArr[];
-					String lastName;
-					memento = diagramCareTaker.getDiagramViewMemento();
+					String leastName;
+					memento = diagramCareTaker.getDiagramViewRedoMemento();
 					if(memento!=null) {
 						Record record=(Record) memento.get();
 						String cmd=record.getCmd();
@@ -541,47 +551,59 @@ public class StateController {
 							case "createState":
 								stateView=(StateView)record.getNode();
 								stateDiagramView=(StateDiagramView)record.getParentNode();
-								stateDiagramView.getChildren().remove(stateView);
-								stateMap.remove(stateView);
+								stateDiagramView.getChildren().add(stateView);
+								stateMap.put(stateView,(State) record.getDiagramElement());
 								break;
 							case "createTransition":
 								transitionView=(ArrowLineView)record.getNode();
 								stateDiagramView=(StateDiagramView)record.getParentNode();
-								stateDiagramView.getChildren().remove(transitionView);
-								arrowMap.remove(transitionView);
+								stateDiagramView.getChildren().add(transitionView);
+								arrowMap.put(transitionView,(Transition) record.getDiagramElement());
 								break;
 							case "createStateDiagram":
+								currentStateDiagramView=stateMachineView.add((StateDiagramView)record.getNode());
+								stateDiagramMap.put(currentStateDiagramView, (StateDiagram) record.getDiagramElement());
+								stateDiagram=stateDiagramMap.get(currentStateDiagramView);
+								break;
+							case "renameState":
+								stateView=(StateView)record.getNode();
+								strArr=record.getContext().split(",");
+								leastName=strArr[0];
+								stateView.nameText.setText(leastName);
+								break;
+							case "renameTransition":
+								transitionView=(ArrowLineView)record.getNode();
+								strArr=record.getContext().split(",");
+								leastName=strArr[0];
+								transitionView.nameText.setText(leastName);
+								break;
+							case "renameStateDiagram":
+								stateDiagramView=(StateDiagramView)record.getNode();
+								strArr=record.getContext().split(",");
+								leastName=strArr[0];
+								stateDiagramView.nameText.setText(leastName);
+								break;
+							case "removeStateDiagram":
 								stateDiagramView=(StateDiagramView)record.getNode();
 								currentStateDiagramView=stateDiagramView.lastStateDiagram;
 								stateMachineView.removeStateDiagram(stateDiagramView);
 								stateDiagramMap.remove(stateMachineView);
 								stateDiagram=stateDiagramMap.get(currentStateDiagramView);
 								break;
-							case "renameState":
+							case "removeState":
 								stateView=(StateView)record.getNode();
-								strArr=record.getContext().split(",");
-								lastName=strArr[1];
-								stateView.nameText.setText(lastName);
+								stateDiagramView=(StateDiagramView)record.getParentNode();
+								stateDiagramView.getChildren().remove(stateView);
+								stateMap.remove(stateView);
 								break;
-							case "renameTransition":
+							case "removeTransition":
 								transitionView=(ArrowLineView)record.getNode();
-								strArr=record.getContext().split(",");
-								lastName=strArr[1];
-								transitionView.nameText.setText(lastName);
-								break;
-							case "renameStateDiagram":
-								stateDiagramView=(StateDiagramView)record.getNode();
-								strArr=record.getContext().split(",");
-								lastName=strArr[1];
-								stateDiagramView.nameText.setText(lastName);
-								break;
-								
-							case "removeStateDiagram":
-								stateDiagramView=stateMachineView.add((StateDiagramView)record.getNode());
-								stateDiagramMap.put(stateDiagramView, (StateDiagram) record.getDiagramElement());
+								stateDiagramView=(StateDiagramView)record.getParentNode();
+								stateDiagramView.getChildren().remove(transitionView);
+								arrowMap.remove(transitionView);
 								break;
 						}
-						root=clientBridge.undo(root);
+						root=clientBridge.redo(root);
 						System.out.println(root.getInfo());
 					}
 				} catch (CloneNotSupportedException e) {

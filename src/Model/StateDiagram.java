@@ -12,17 +12,7 @@ public class StateDiagram extends DiagramElement{
 		diagramElementList.add(diagramElement);
 	}
 	public void add(DiagramElement root,DiagramElement node) {
-		/*Iterator it=new DiagramElementIterator(diagramElementList);
-		while(it.hasNext()) {
-			DiagramElement de=(DiagramElement)it.next();
-			if(de.getID()==parent.getID()) {
-				parent.add(node);
-			}else {
-				if(de instanceof StateDiagram) {
-					de.add(root,parent,node);
-				}
-			}
-		}*/
+		
 		DiagramElement parent=root.getParent(node);
 		if(parent==null)
 			root.add(node);

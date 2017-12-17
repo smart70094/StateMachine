@@ -9,8 +9,8 @@ public interface StateDiagramBridge {
 	State createState(StateDiagram sd);
 	Transition createTransition(StateDiagram sd);
 	StateDiagram createStateDiagram(StateDiagram sd);
-	void rename(String name,DiagramElement de);
+	void rename(String name,DiagramElement de,StateDiagram root,StateDiagram sd);
 	void remove(DiagramElement parent ,DiagramElement children);
 	StateDiagram undo(StateDiagram sd);
-	void redo();
+	StateDiagram redo(StateDiagram sd);
 }

@@ -27,7 +27,7 @@ public class CreateStateCommand implements StateDiagramCommand{
 	public Object redo() {
 		targetStateDiagram=(StateDiagram) rootStateDiagram.get(targetStateDiagram);
 		targetStateDiagram.add(state);
-		return null;
+		return rootStateDiagram;
 	}
 	@Override
 	public void setRootStateDiagram(StateDiagram sd) {

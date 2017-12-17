@@ -5,7 +5,6 @@ import Model.StateDiagram;
 public interface StateDiagramCommand {
 	Object execute();
 	Object undo();
-	
-	/*Object getRootStateDiagram();*/
+	Object redo();
 	void setRootStateDiagram(StateDiagram sd);
 }

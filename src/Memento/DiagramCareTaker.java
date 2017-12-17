@@ -4,27 +4,58 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 public class DiagramCareTaker {
-	Stack<DiagramMemento> viewStack;
-	Stack<DiagramMemento> modelStack;
+	Stack<DiagramMemento> viewUndoStack;
+	Stack<DiagramMemento> viewRedoStack;
+	
+	Stack<DiagramMemento> modelUndoStack;
+	Stack<DiagramMemento> modelRedoStack;
 	
 	public DiagramCareTaker() {
-		viewStack=new Stack<DiagramMemento>();
-		modelStack=new Stack<DiagramMemento>();
+		viewUndoStack=new Stack<DiagramMemento>();
+		viewRedoStack=new Stack<DiagramMemento>();
+		modelUndoStack=new Stack<DiagramMemento>();
+		modelRedoStack=new Stack<DiagramMemento>();
 	}
 	
 	//View
 	public void addDiagramViewMemento(DiagramMemento m) {
-		viewStack.push(m);
+		viewUndoStack.push(m);
 	}
-	public DiagramMemento getDiagramViewMemento() throws CloneNotSupportedException {
-		return (!viewStack.empty())?(DiagramMemento)viewStack.pop().clone():null;
+	public DiagramMemento getDiagramViewUndoMemento() throws CloneNotSupportedException {
+		DiagramMemento memento = null;
+		if(!viewUndoStack.empty()) {
+			memento=(DiagramMemento)viewUndoStack.pop().clone();
+			viewRedoStack.push(memento);
+		}
+		return memento;
+	}
+	public DiagramMemento getDiagramViewRedoMemento() throws CloneNotSupportedException {
+		DiagramMemento memento = null;
+		if(!viewRedoStack.empty()) {
+			memento=(DiagramMemento)viewRedoStack.pop().clone();
+			viewUndoStack.push(memento);
+		}
+		return memento;
 	}
 	
 	//Model
 	public void addDiagramModelMemento(DiagramMemento m) {
-		modelStack.push(m);
+		modelUndoStack.push(m);
 	}
-	public DiagramMemento getDiagramModelMemento() throws CloneNotSupportedException {
-		return (!modelStack.empty())?(DiagramMemento)modelStack.pop().clone():null;
+	public DiagramMemento getDiagramModelUndoMemento() throws CloneNotSupportedException {
+		DiagramMemento memento=null;
+		if(!modelUndoStack.empty()) {
+			memento=(DiagramMemento)modelUndoStack.pop().clone();
+			modelRedoStack.push(memento);
+		}
+		return memento;
+	}
+	public DiagramMemento getDiagramModelRedoMemento() throws CloneNotSupportedException {
+		DiagramMemento memento=null;
+		if(!modelRedoStack.empty()) {
+			memento=(DiagramMemento)modelRedoStack.pop().clone();
+			modelUndoStack.push(memento);
+		}
+		return memento;
 	}
 }

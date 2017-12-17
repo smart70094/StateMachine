@@ -29,6 +29,12 @@ public class CreateTransitionCommand implements StateDiagramCommand{
 	public void setRootStateDiagram(StateDiagram sd) {
 		rootStateDiagram=sd;
 	}
+	@Override
+	public Object redo() {
+		targetStateDiagram=(StateDiagram) rootStateDiagram.get(targetStateDiagram);
+		targetStateDiagram.add(transition);
+		return rootStateDiagram;
+	}
 
 
 }

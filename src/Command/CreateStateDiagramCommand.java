@@ -31,6 +31,16 @@ public class CreateStateDiagramCommand implements StateDiagramCommand{
 	public void setRootStateDiagram(StateDiagram sd) {
 		rootStateDiagram=sd;
 	}
+	@Override
+	public Object redo() {
+		targetStateDiagram=(StateDiagram) rootStateDiagram.get(targetStateDiagram);
+		if(targetStateDiagram!=null) 
+			targetStateDiagram.add(stateDiagram);
+		else
+			rootStateDiagram.add(targetStateDiagram);
+		return rootStateDiagram;
+	}
+
 
 	
 

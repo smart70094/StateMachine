@@ -58,16 +58,16 @@ public class StateDiagram_V1_Bridge implements StateDiagramBridge{
 	}
 
 	@Override
-	public void rename(String name,DiagramElement de) {
-		StateDiagramCommand command=new RenameCommand(name,de);
+	public void rename(String name,DiagramElement de,StateDiagram root,StateDiagram sd) {
+		StateDiagramCommand command=new RenameCommand(name,de,root,sd);
 		command.execute();
+		save(command);
 	}
 	
 	@Override
 	public StateDiagram undo(StateDiagram sd) {
-		
 		try {
-			DiagramMemento memento=diagramCareTaker.getDiagramModelMemento();
+			DiagramMemento memento=diagramCareTaker.getDiagramModelUndoMemento();
 			if(memento!=null) {
 				ModelRecord record=(ModelRecord) memento.get();
 				StateDiagramCommand command=record.getCommand();
@@ -81,9 +81,19 @@ public class StateDiagram_V1_Bridge implements StateDiagramBridge{
 	}
 
 	@Override
-	public void redo() {
-		// TODO Auto-generated method stub
-		
+	public StateDiagram redo(StateDiagram sd) {
+		try {
+			DiagramMemento memento=diagramCareTaker.getDiagramModelRedoMemento();
+			if(memento!=null) {
+				ModelRecord record=(ModelRecord) memento.get();
+				StateDiagramCommand command=record.getCommand();
+				command.setRootStateDiagram(sd);
+				return (StateDiagram) command.redo();
+			}
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public void save(StateDiagramCommand command) {

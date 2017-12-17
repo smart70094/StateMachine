@@ -146,6 +146,11 @@ public class StateMachineView extends Application{
 		undoBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, e);
 	}
 	
+	@SuppressWarnings("unchecked")
+	void addActionRedoBtn(EventHandler e) {
+		redoBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, e);
+	}
+	
 	
 	//Dialog
 	String showIinputDialog() {
