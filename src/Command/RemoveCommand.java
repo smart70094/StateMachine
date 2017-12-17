@@ -16,7 +16,7 @@ public class RemoveCommand implements StateDiagramCommand{
 	}
 	@Override
 	public Object undo() {
-		rootStateDiagram.add(rootStateDiagram,parent, children);
+		rootStateDiagram.add(rootStateDiagram, children);
 		return rootStateDiagram;
 	}
 	@Override

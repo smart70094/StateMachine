@@ -11,8 +11,8 @@ public class StateDiagram extends DiagramElement{
 	public void add(DiagramElement diagramElement) {
 		diagramElementList.add(diagramElement);
 	}
-	public void add(DiagramElement root,DiagramElement parent,DiagramElement node) {
-		Iterator it=new DiagramElementIterator(diagramElementList);
+	public void add(DiagramElement root,DiagramElement node) {
+		/*Iterator it=new DiagramElementIterator(diagramElementList);
 		while(it.hasNext()) {
 			DiagramElement de=(DiagramElement)it.next();
 			if(de.getID()==parent.getID()) {
@@ -22,7 +22,12 @@ public class StateDiagram extends DiagramElement{
 					de.add(root,parent,node);
 				}
 			}
-		}
+		}*/
+		DiagramElement parent=root.getParent(node);
+		if(parent==null)
+			root.add(node);
+		else
+			parent.add(node);
 	}
 	public void remove(DiagramElement diagramElement) {
 		Iterator it=new DiagramElementIterator(diagramElementList);
@@ -37,21 +42,26 @@ public class StateDiagram extends DiagramElement{
 			}
 		}
 	}
-	public DiagramElement get(DiagramElement diagramElement) {
+	
+	public void search(DiagramElement diagramElement) {
 		Iterator it=new DiagramElementIterator(diagramElementList);
 		while(it.hasNext()) {
 			DiagramElement de=(DiagramElement)it.next();
 			if(de.getID()==diagramElement.getID()) {
-				return de;
+				tempDiagramElement=de;
 			}else {
 				if(de instanceof StateDiagram) {
-					de.get(diagramElement);
+					de.search(diagramElement);
 				}
 			}
 		}
-		return null;
 	}
-	
+	public DiagramElement get(DiagramElement diagramElement) {
+		search(diagramElement);
+		DiagramElement de=tempDiagramElement;
+		tempDiagramElement=null;
+		return de;
+	}
 	static DiagramElement parent=null;
 	public void searchParent(DiagramElement diagramElement) {
 		Iterator it=new DiagramElementIterator(diagramElementList);

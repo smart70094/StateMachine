@@ -42,6 +42,7 @@ public class StateMachineView extends Application{
 	private Button stateBtn;
 	private Button stateDiagramBtn;
 	private Button undoBtn;
+	private Button redoBtn;
 	
 	private ImageView img;
 	
@@ -68,6 +69,8 @@ public class StateMachineView extends Application{
 		transitionBtn=new Button("Transition");
 		stateBtn=new Button("State");
 		undoBtn=new Button("undo");
+		redoBtn=new Button("redo");
+		redoBtn.setLayoutY(200);
 		undoBtn.setLayoutY(150);
 		stateBtn.setLayoutY(50);
 		stateDiagramBtn=new Button("stateDiagram");
@@ -85,6 +88,7 @@ public class StateMachineView extends Application{
 
 		
 		root.getChildren().add(undoBtn);
+		root.getChildren().add(redoBtn);
 		root.getChildren().add(transitionBtn);
 		root.getChildren().add(stateBtn);
 		root.getChildren().add(stateDiagramBtn);
@@ -102,14 +106,22 @@ public class StateMachineView extends Application{
 		StateView stateView=new StateView(state);
 		return stateView;
 	}
-	StateDiagramView createStateDiagram(StateDiagram stateDiagram,StateDiagramView lastStateDiagram) {
+	public StateDiagramView createStateDiagram(StateDiagram stateDiagram,StateDiagramView lastStateDiagram) {
 		StateDiagramView stateDiagramView=new StateDiagramView(stateDiagram,lastStateDiagram);
 		root.getChildren().add(stateDiagramView);
 		return stateDiagramView;
 	}
+	
 	void removeStateDiagram(StateDiagramView stateDiagramView) {
 		//StateDiagramView lastStateDiagram=stateDiagramView.lastStateDiagram;
 		root.getChildren().remove(stateDiagramView);
+	}
+	
+	StateDiagramView add(StateDiagramView stateDiagramView) {
+
+		root.getChildren().add(stateDiagramView);
+		
+		return stateDiagramView;
 	}
 	
 	//register event

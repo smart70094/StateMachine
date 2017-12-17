@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SampleController">
+   <left>
+      <Pane prefHeight="600.0" prefWidth="888.0" BorderPane.alignment="CENTER">
+         <children>                             
+         <ImageView id="redo" fx:id="redo" fitHeight="76.0" fitWidth="73.0" layoutX="0.0" layoutY="-5.0" onMouseClicked="#redoClick" onMouseExited="#redoExit" pickOnBounds="true" preserveRatio="true">
+            <image>
+              <Image url="/Redo.png" />
+            </image>
+         </ImageView>
+            <ImageView fx:id="undo" fitHeight="76.0" fitWidth="73.0" layoutX="70.0" layoutY="-5.0" onMouseClicked="#undoClick" onMouseExited="#undoExit" pickOnBounds="true" preserveRatio="true">  
+               <image>
+                 <Image url="/Undo.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="edit" fitHeight="76.0" fitWidth="73.0" layoutX="140.0" layoutY="-5.0" onMouseClicked="#editClick" onMouseExited="#editExit" pickOnBounds="true" preserveRatio="true">
+                <image>
+                 <Image url="/Edit.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="boundary" fitHeight="80.0" fitWidth="213.0" layoutY="43.0" onMouseClicked="#boundaryClick" onMouseExited="#boundaryExit" pickOnBounds="true" preserveRatio="true"> 
+                <image>
+                 <Image url="/Boundary.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="state" fitHeight="80.0" fitWidth="213.0" layoutY="104.0" onMouseClicked="#stateClick" onMouseExited="#stateExit" pickOnBounds="true" preserveRatio="true">
+               <image>
+                 <Image url="/State.png" />
+               </image>
+            </ImageView>            
+            <ImageView fx:id="initialStates" fitHeight="80.0" fitWidth="213.0" layoutY="164.0" onMouseClicked="#initialStatesClick" onMouseExited="#initialStatesExit" pickOnBounds="true" preserveRatio="true">
+               <image>
+                 <Image url="/initial States.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="finalStates" fitHeight="80.0" fitWidth="213.0" layoutY="224.0" onMouseClicked="#finalStatesClick" onMouseExited="#finalStatesExit" pickOnBounds="true" preserveRatio="true">
+               <image>
+                 <Image url="/Final States.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="transition" fitHeight="80.0" fitWidth="213.0" layoutY="284.0" onMouseClicked="#transitionClick" onMouseExited="#transitionExit" pickOnBounds="true" preserveRatio="true">
+                <image>
+                 <Image url="/Transition.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="stateActions" fitHeight="80.0" fitWidth="213.0" layoutY="344.0" onMouseClicked="#stateActionsClick" onMouseExited="#stateActionsExit" pickOnBounds="true" preserveRatio="true">
+                <image>
+                 <Image url="/State Actions.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="selfTransitions" fitHeight="80.0" fitWidth="213.0" layoutY="404.0" onMouseClicked="#selfTransitionsClick" onMouseExited="#selfTransitionsExit" pickOnBounds="true" preserveRatio="true">
+                <image>
+                 <Image url="/Self-Transitions.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="compoundStates" fitHeight="80.0" fitWidth="213.0" layoutY="464.0" onMouseClicked="#compoundStatesClick" onMouseExited="#compoundStatesExit" pickOnBounds="true" preserveRatio="true">
+                <image>
+                 <Image url="/Compound States.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="version" fitHeight="80.0" fitWidth="213.0" layoutY="525.0" onMouseClicked="#versionClick" onMouseExited="#versionExit" pickOnBounds="true" preserveRatio="true">
+                <image>
+                 <Image url="/version.png" />
+               </image>
+            </ImageView>
+            <Pane fx:id="rightPane" layoutX="209.0" layoutY="-4.0" prefHeight="582.0" prefWidth="679.0" style="-fx-background-color: #F7F7F7;">
+               <children>       
+                  <TextField id="text" fx:id="text" layoutX="216.0" layoutY="253.0" prefHeight="64.0" prefWidth="200.0">
+                     <font>
+                        <Font size="25.0" />
+                     </font>
+                  </TextField>
+                  <ImageView fx:id="Trash" fitHeight="100.0" fitWidth="100.0" layoutX="572.0" layoutY="468.0" onMouseClicked="#trashClick" onMouseExited="#trashExit" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                       <Image url="/trash.png" />
+                     </image>                 
+                  </ImageView>
+                  <ImageView fitHeight="77.0" fitWidth="700.0" layoutX="-11.0" layoutY="-5" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                       <Image url="/orange.png" />
+                     </image>  
+                  </ImageView>
+                 
+               </children></Pane>
+         </children>
+      </Pane>
+   </left>
+</BorderPane>

@@ -13,10 +13,15 @@ public abstract class DiagramElement {
 	public void add(DiagramElement diagramElement) {
 		throw new UnsupportedOperationException();
 	}
-	public void add(DiagramElement root,DiagramElement parent,DiagramElement node) {
+	public void add(DiagramElement root,DiagramElement node) {
 		throw new UnsupportedOperationException();
 	}
 	public void remove(DiagramElement diagramElement) {
+		throw new UnsupportedOperationException();
+	}
+	
+	public static DiagramElement tempDiagramElement=null;
+	public void search(DiagramElement diagramElement) {
 		throw new UnsupportedOperationException();
 	}
 	public DiagramElement get(DiagramElement diagramElement) {

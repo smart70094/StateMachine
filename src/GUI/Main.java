@@ -1,26 +1,31 @@
+package application;
+	
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
+import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
+import javafx.fxml.FXMLLoader;
 
-public class Main extends Application{
-	public static void main(String args[]) {
+
+public class Main extends Application {
+	public static void main(String[] args) {
 		launch(args);
 	}
-	public void start(Stage stage) throws Exception {
-		StateController controller=new StateController(stage);
-		controller.start();
-		
-		/*try {
+	@Override
+	public void start(Stage primaryStage) {
+		try {
 			BorderPane root = (BorderPane)FXMLLoader.load(getClass().getResource("Sample.fxml"));
 			Scene scene = new Scene(root,890,578);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-			stage.setScene(scene);
-			stage.show();
+			primaryStage.setScene(scene);
+			primaryStage.show();
 		} catch(Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 	}
-
+	
+	
+	 
+	
+	
 }
