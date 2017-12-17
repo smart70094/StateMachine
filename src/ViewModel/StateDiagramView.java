@@ -10,7 +10,7 @@ import javafx.scene.text.Text;
 public class StateDiagramView extends Group{
 	public AnchorPane pane;
 	public StateDiagramView lastStateDiagram;
-	Text nameText;
+	public Text nameText;
 	public StateDiagramView(StateDiagram stateDiagram,StateDiagramView lastStateDiagram) {
 		this.lastStateDiagram=lastStateDiagram;
 		pane=new AnchorPane();

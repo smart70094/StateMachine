@@ -9,7 +9,7 @@ import javafx.scene.text.Text;
 
 public class StateView extends Group{
 	Circle circle;
-	Text nameText;
+	public Text nameText;
 	public StateView(State state) {
 		circle=new 	Circle(state.radius);
 		circle.setLayoutX(state.x);

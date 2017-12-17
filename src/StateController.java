@@ -2,6 +2,9 @@ import java.util.HashMap;
 import Bridge.ClientBridge;
 import Bridge.StateDiagram_V1_Bridge;
 import Bridge.StateDiagram_V2_Bridge;
+import Memento.DiagramCareTaker;
+import Memento.DiagramMemento;
+import Memento.Record;
 import Model.DiagramElement;
 import Model.State;
 import Model.StateDiagram;
@@ -12,6 +15,7 @@ import ViewModel.StateView;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
+import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Circle;
@@ -31,6 +35,7 @@ public class StateController {
 	DiagramElement stateDiagram;
 	DiagramElement rootStateDiagram;
 	
+	DiagramCareTaker diagramCareTaker;
 	//記錄元件與相對應的model
 	HashMap<ArrowLineView,Transition> arrowMap=new HashMap<ArrowLineView,Transition>();
 	HashMap<StateView,State> stateMap=new HashMap<StateView,State>();
@@ -39,6 +44,7 @@ public class StateController {
 	StateController(Stage stage){
 		this.stage=stage;
 		clientBridge=new ClientBridge(new StateDiagram_V1_Bridge());
+		diagramCareTaker=new DiagramCareTaker();
 	}
 	void start() throws Exception {
 		stateMachineView=StateMachineView.getInstance();
@@ -47,6 +53,7 @@ public class StateController {
 		stateMachineView.addActionForTransitionBtn(new CreateTransitionAction());
 		stateMachineView.addActionStateBtn(new CreateStateAction());
 		stateMachineView.addActionStateDiagramBtn(new CreateStateDiagramAction());
+		stateMachineView.addActionUndoBtn(new UndoAction());
 		
 		
 		rootStateDiagram=clientBridge.createStateDiagram();
@@ -67,6 +74,16 @@ public class StateController {
 			}
 		}
 		return false;
+	}
+	//儲存create的狀態
+	void save(String cmd,Group g) {
+		Record r=new Record(cmd,currentStateDiagramView,g);
+		diagramCareTaker.add(r.createMemento());
+	}
+	//儲存重新命名的狀態
+	void save(String cmd,Group g,String context) {
+		Record r=new Record(cmd,g,context);
+		diagramCareTaker.add(r.createMemento());
 	}
 	//Event Class
 	
@@ -93,6 +110,7 @@ public class StateController {
 			stateDiagram.add(arrowModel);
 			arrowMap.put(arrowView,arrowModel);
 			currentStateDiagramView.getChildren().add(arrowView);
+			save("createTransition",arrowView);
 		}
 	}
 	
@@ -109,7 +127,7 @@ public class StateController {
 			stateMap.put(stateView, state);
 			stateDiagram.add(state);
 			currentStateDiagramView.getChildren().add(stateView);
-			
+			save("createState",stateView);
 		}
 	}
 	
@@ -122,6 +140,7 @@ public class StateController {
 			stateDiagramMap.put(stateDiagramView, sd);
 			stateDiagram.add(sd);
 			stateDiagram=sd;
+			save("createStateDiagram",stateDiagramView);
 		}
 	}
 	@SuppressWarnings("unchecked")
@@ -303,10 +322,12 @@ public class StateController {
 				}else if (eventType.equals(MouseEvent.MOUSE_CLICKED)) {	
 					String name=stateMachineView.showIinputDialog();
 					if(name!=null) {
+						String lastName=nameText.getText();
 						nameText.setText(name);
 						currentTransition=(ArrowLineView) nameText.getParent();
 						DiagramElement de=arrowMap.get(currentTransition);				
 						clientBridge.rename(name, de);
+						save("renameTransition",(ArrowLineView)nameText.getParent(),name+","+lastName);
 					}
 				} 
 			}
@@ -339,9 +360,11 @@ public class StateController {
 				if (eventType.equals(MouseEvent.MOUSE_CLICKED)) {	
 					String name=stateMachineView.showIinputDialog();
 					if(name!=null) {
+						String lastName=nameText.getText();
 						nameText.setText(name);
-						DiagramElement de=stateMap.get(currentState);
+						DiagramElement de=stateMap.get(nameText.getParent());
 						clientBridge.rename(name, de);
+						save("renameState",(StateView)nameText.getParent(),name+","+lastName);
 					}
 				}
 			}
@@ -359,11 +382,14 @@ public class StateController {
 				if (eventType.equals(MouseEvent.MOUSE_CLICKED)) {	
 					String name=stateMachineView.showIinputDialog();
 					if(name!=null) {
+						String lastName=nameText.getText();
 						nameText.setText(name);
 						DiagramElement de=stateDiagramMap.get(currentStateDiagramView);
 						clientBridge.rename(name, de);
+						save("renameStateDiagram",(StateDiagramView)nameText.getParent(),name+","+lastName);
 					}
 				}
+				
 			}
 		}
 	}
@@ -438,6 +464,121 @@ public class StateController {
 		}
 	}
 	
+	//Undo
+	class UndoAction implements EventHandler{
+		public void handle(Event arg0) {
+			try {
+				DiagramMemento memento;
+				StateDiagramView stateDiagramView;
+				StateView stateView;
+				ArrowLineView transitionView;
+				String strArr[];
+				String lastName;
+				memento = diagramCareTaker.get();
+				if(memento!=null) {
+					Record record=memento.getRecord();
+					String cmd=record.getCmd();
+					switch(cmd) {
+						case "createState":
+							stateView=(StateView)record.getNode();
+							stateDiagramView=(StateDiagramView)record.getParentNode();
+							stateDiagramView.getChildren().remove(stateView);
+							stateMap.remove(stateView);
+							break;
+						case "createTransition":
+							transitionView=(ArrowLineView)record.getNode();
+							stateDiagramView=(StateDiagramView)record.getParentNode();
+							stateDiagramView.getChildren().remove(transitionView);
+							arrowMap.remove(transitionView);
+							break;
+						case "createStateDiagram":
+							stateDiagramView=(StateDiagramView)record.getNode();
+							stateMachineView.removeStateDiagram(stateDiagramView);
+							stateDiagramMap.remove(stateMachineView);
+							break;
+						case "renameState":
+							stateView=(StateView)record.getNode();
+							strArr=record.getContext().split(",");
+							lastName=strArr[1];
+							stateView.nameText.setText(lastName);
+							break;
+						case "renameTransition":
+							transitionView=(ArrowLineView)record.getNode();
+							strArr=record.getContext().split(",");
+							lastName=strArr[1];
+							transitionView.nameText.setText(lastName);
+							break;
+						case "renameStateDiagram":
+							stateDiagramView=(StateDiagramView)record.getNode();
+							strArr=record.getContext().split(",");
+							lastName=strArr[1];
+							stateDiagramView.nameText.setText(lastName);
+							break;
+					}
+				}
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	//Redo
+	class RedoAction implements EventHandler{
+		public void handle(Event arg0) {
+			try {
+				DiagramMemento memento;
+				StateDiagramView stateDiagramView;
+				StateView stateView;
+				ArrowLineView transitionView;
+				String strArr[];
+				String lastName;
+				memento = diagramCareTaker.get();
+				if(memento!=null) {
+					Record record=memento.getRecord();
+					String cmd=record.getCmd();
+					switch(cmd) {
+						case "createState":
+							stateView=(StateView)record.getNode();
+							stateDiagramView=(StateDiagramView)record.getParentNode();
+							stateDiagramView.getChildren().remove(stateView);
+							stateMap.remove(stateView);
+							break;
+						case "createTransition":
+							transitionView=(ArrowLineView)record.getNode();
+							stateDiagramView=(StateDiagramView)record.getParentNode();
+							stateDiagramView.getChildren().remove(transitionView);
+							arrowMap.remove(transitionView);
+							break;
+						case "createStateDiagram":
+							stateDiagramView=(StateDiagramView)record.getNode();
+							stateMachineView.removeStateDiagram(stateDiagramView);
+							stateDiagramMap.remove(stateMachineView);
+							break;
+						case "renameState":
+							stateView=(StateView)record.getNode();
+							strArr=record.getContext().split(",");
+							lastName=strArr[1];
+							stateView.nameText.setText(lastName);
+							break;
+						case "renameTransition":
+							transitionView=(ArrowLineView)record.getNode();
+							strArr=record.getContext().split(",");
+							lastName=strArr[1];
+							transitionView.nameText.setText(lastName);
+							break;
+						case "renameStateDiagram":
+							stateDiagramView=(StateDiagramView)record.getNode();
+							strArr=record.getContext().split(",");
+							lastName=strArr[1];
+							stateDiagramView.nameText.setText(lastName);
+							break;
+					}
+				}
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }
 
 

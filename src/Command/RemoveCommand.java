@@ -13,5 +13,10 @@ public class RemoveCommand implements StateDiagramCommand{
 		parent.remove(children);
 		return null;
 	}
+	@Override
+	public Object undo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

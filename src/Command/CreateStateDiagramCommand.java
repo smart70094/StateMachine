@@ -11,6 +11,11 @@ public class CreateStateDiagramCommand implements StateDiagramCommand{
 	public Object execute() {
 		return factory.createStateDiagram();
 	}
+	@Override
+	public Object undo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 
 }

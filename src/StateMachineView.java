@@ -41,6 +41,8 @@ public class StateMachineView extends Application{
 	private Button transitionBtn;
 	private Button stateBtn;
 	private Button stateDiagramBtn;
+	private Button undoBtn;
+	
 	private ImageView img;
 	
 	static volatile StateMachineView stateView=null;
@@ -65,6 +67,8 @@ public class StateMachineView extends Application{
 		//新增介面元件
 		transitionBtn=new Button("Transition");
 		stateBtn=new Button("State");
+		undoBtn=new Button("undo");
+		undoBtn.setLayoutY(150);
 		stateBtn.setLayoutY(50);
 		stateDiagramBtn=new Button("stateDiagram");
 		stateDiagramBtn.setLayoutY(100);
@@ -80,7 +84,7 @@ public class StateMachineView extends Application{
 		img.setLayoutY(768-50);
 
 		
-		
+		root.getChildren().add(undoBtn);
 		root.getChildren().add(transitionBtn);
 		root.getChildren().add(stateBtn);
 		root.getChildren().add(stateDiagramBtn);
@@ -128,6 +132,10 @@ public class StateMachineView extends Application{
 	@SuppressWarnings("unchecked")
 	void addActionRemoveDiagram(EventHandler e) {
 		img.addEventHandler(MouseEvent.MOUSE_ENTERED, e);
+	}
+	@SuppressWarnings("unchecked")
+	void addActionUndoBtn(EventHandler e) {
+		undoBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, e);
 	}
 	
 	

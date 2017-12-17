@@ -10,6 +10,11 @@ public class CreateTransitionCommand implements StateDiagramCommand{
 	public Object execute() {
 		return factory.createTransition();
 	}
+	@Override
+	public Object undo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 
 }

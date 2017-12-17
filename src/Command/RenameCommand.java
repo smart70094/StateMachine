@@ -13,5 +13,10 @@ public class RenameCommand implements StateDiagramCommand{
 		de.name=name;
 		return null;
 	}
+	@Override
+	public Object undo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }
