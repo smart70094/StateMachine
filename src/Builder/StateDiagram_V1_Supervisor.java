@@ -14,7 +14,7 @@ public class StateDiagram_V1_Supervisor extends StateDiagramSupervisor{
 	public Object construct() {
 		builder.setElements(new StateDiagram_V1());
 		builder.setShape(600,600);
-		builder.setPosition(100,70);
+		builder.setPosition(370,100);
 		builder.setName("StateDiagram");
 		builder.setStyle("StateDiagramStyle1");
 		return builder.getResult();

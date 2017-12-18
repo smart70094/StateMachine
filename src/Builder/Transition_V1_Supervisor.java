@@ -10,7 +10,7 @@ public class Transition_V1_Supervisor extends TransitionSupervisor{
 	public Object construct() {
 		builder.setElements(new Transition_V1());
 		builder.setShape(100, 10, 300, 10);
-		builder.setPosition(100,100);
+		builder.setPosition(500,200);
 		builder.setName("Transition");
 		builder.setStyle("TransitionStyle1");
 		return builder.getResult();

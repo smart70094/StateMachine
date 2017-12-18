@@ -1,4 +1,6 @@
 import java.util.HashMap;
+import java.util.Optional;
+
 import Bridge.ClientBridge;
 import Bridge.StateDiagram_V1_Bridge;
 import Bridge.StateDiagram_V2_Bridge;
@@ -16,6 +18,9 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.Group;
+import javafx.scene.control.ChoiceDialog;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
@@ -31,7 +36,7 @@ public class StateController {
 	DiagramCareTaker diagramCareTaker;
 	//view
 	//主要介面
-	StateMachineView2 stateMachineView;
+	StateMachineView stateMachineView;
 	//選取中的transition
 	ArrowLineView currentTransition;
 	//選取中的transition
@@ -60,7 +65,7 @@ public class StateController {
 		root=new StateDiagram();
 	}
 	void start() throws Exception {
-		stateMachineView=StateMachineView2.getInstance();
+		stateMachineView=StateMachineView.getInstance();
 		stateMachineView.start(stage);
 		//register event for each button
 		stateMachineView.addActionForTransitionBtn(new CreateTransitionAction());
@@ -69,6 +74,7 @@ public class StateController {
 		stateMachineView.addActionUndoBtn(new UndoAction());
 		stateMachineView.addActionRedoBtn(new RedoAction());
 		stateMachineView.addActionInfoBtn(new DisplayInfoAction());
+		stateMachineView.addActionForVersionBtn(new SelectVersion());
 		
 		
 		stateDiagram=clientBridge.createStateDiagram(root);
@@ -114,10 +120,32 @@ public class StateController {
 
 	//Event Class
 	
+	
+	//新增 version
+		class SelectVersion implements EventHandler{
+			@SuppressWarnings("unchecked")
+			public void handle(Event e) {
+				ImageView versionBtn=(ImageView)e.getSource();
+				stateMachineView.changeImageBtn(versionBtn, "/version_click.png");
+				String result=stateMachineView.showSelectVersionDialog(versionBtn);
+				if(result!=null) {
+					if(result.equals("version1")) 
+						clientBridge.setBridge(new StateDiagram_V1_Bridge(new DiagramCareTaker()));
+					else if(result.equals("version2")) 
+						clientBridge.setBridge(new StateDiagram_V2_Bridge(new DiagramCareTaker()));
+				}
+			}
+		}
+	
 	//新增Transition
 	class CreateTransitionAction implements EventHandler{
 		@SuppressWarnings("unchecked")
 		public void handle(Event e) {
+			//set Transition_click Image
+			ImageView transitionBtn=(ImageView)e.getSource();
+			stateMachineView.changeImageBtn(transitionBtn, "/Transition_click.png");
+			transitionBtn.addEventHandler(MouseEvent.MOUSE_EXITED, new transitionExitAction());
+			
 			Transition arrowModel=clientBridge.createTransition(stateDiagram);
 			ArrowLineView arrowView=stateMachineView.createTransition(arrowModel);
 				
@@ -144,7 +172,10 @@ public class StateController {
 	class CreateStateAction implements EventHandler{
 		@SuppressWarnings("unchecked")
 		public void handle(Event e) {
-			
+			//set State_click Image
+			ImageView stateBtn=(ImageView)e.getSource();
+			stateMachineView.changeImageBtn(stateBtn, "/state_click.png");
+			stateBtn.addEventHandler(MouseEvent.MOUSE_EXITED, new stateExitAction());
 			//stateDiagram=(StateDiagram) root.get(stateDiagram);
 			State state=clientBridge.createState(stateDiagram);
 			
@@ -165,6 +196,8 @@ public class StateController {
 	class CreateStateDiagramAction implements EventHandler{
 		@SuppressWarnings("unchecked")
 		public void handle(Event e) {
+			ImageView stateDiagramBtn=(ImageView)e.getSource();
+			stateMachineView.changeImageBtn(stateDiagramBtn, "/State Actions_click.png");
 			StateDiagram sd=clientBridge.createStateDiagram(stateDiagram);
 			StateDiagramView stateDiagramView=createStateDiagram(sd,currentStateDiagramView);
 			stateDiagramView.lastStateDiagram=currentStateDiagramView;
@@ -172,6 +205,7 @@ public class StateController {
 			stateDiagramMap.put(stateDiagramView, sd);
 			stateDiagram=sd;
 			save("createStateDiagram",stateDiagramView,sd);
+			stateDiagramBtn.addEventHandler(MouseEvent.MOUSE_EXITED, new stateDiagramExitAction());
 		}
 	}
 	@SuppressWarnings("unchecked")
@@ -496,7 +530,11 @@ public class StateController {
 	
 	//Undo
 	class UndoAction implements EventHandler{
+		@SuppressWarnings("unchecked")
 		public void handle(Event arg0) {
+			ImageView undoBtn=(ImageView)arg0.getSource();
+			stateMachineView.changeImageBtn(undoBtn, "/Undo_click.png");	
+			undoBtn.addEventHandler(MouseEvent.MOUSE_EXITED, new undoExitAction());
 			try {
 				DiagramMemento memento;
 				StateDiagramView stateDiagramView;
@@ -565,6 +603,7 @@ public class StateController {
 							break;
 					}
 					root=clientBridge.undo(root);
+					
 				}
 			} catch (CloneNotSupportedException e) {
 				e.printStackTrace();
@@ -574,7 +613,11 @@ public class StateController {
 	
 	//Redo
 		class RedoAction implements EventHandler{
+			@SuppressWarnings("unchecked")
 			public void handle(Event arg0) {
+				ImageView redoBtn=(ImageView)arg0.getSource();
+				stateMachineView.changeImageBtn(redoBtn, "/Redo_click.png");	
+				redoBtn.addEventHandler(MouseEvent.MOUSE_EXITED, new redoExitAction());
 				try {
 					DiagramMemento memento;
 					StateDiagramView stateDiagramView;
@@ -641,19 +684,74 @@ public class StateController {
 								stateDiagramView.getChildren().remove(transitionView);
 								arrowMap.remove(transitionView);
 								break;
-						}
+						}				
 						root=clientBridge.redo(root);
+						
 					}
 				} catch (CloneNotSupportedException e) {
 					e.printStackTrace();
 				}
 			}
 		}
+		//Transition click image return Transition image		
+		class transitionExitAction implements EventHandler{
+			public void handle(Event e) {
+				ImageView transitionBtn=(ImageView)e.getSource();
+				stateMachineView.changeImageBtn(transitionBtn, "/Transition.png");
+			
+			}
+		}
+		 //Version click image return Transition image	
+		class versionExitAction implements EventHandler{
+			public void handle(Event e) {
+				ImageView versionBtn=(ImageView)e.getSource();
+				stateMachineView.changeImageBtn(versionBtn, "/version.png");
+			}
+		}
+	   //State click image return Transition image	
+		class stateExitAction implements EventHandler{
+			public void handle(Event e) {
+				ImageView stateBtn=(ImageView)e.getSource();
+				stateMachineView.changeImageBtn(stateBtn, "/state.png");
+			}
+		}
+		//StateDiagram click image return Transition image	
+				class stateDiagramExitAction implements EventHandler{
+					public void handle(Event e) {
+						ImageView stateDiagramBtn=(ImageView)e.getSource();
+						stateMachineView.changeImageBtn(stateDiagramBtn, "/State Actions.png");
+					}
+				}
+	   //Info click image return Transition image	
+				class infoExitAction implements EventHandler{
+					public void handle(Event e) {
+						ImageView infoBtn=(ImageView)e.getSource();
+						stateMachineView.changeImageBtn(infoBtn, "/information.png");
+					}
+				}
+	   //Info click image return Transition image	
+				class undoExitAction implements EventHandler{
+					public void handle(Event e) {
+						ImageView undoBtn=(ImageView)e.getSource();
+						stateMachineView.changeImageBtn(undoBtn, "/Undo.png");
+					}
+				}
+	   //Info click image return Transition image	
+				class redoExitAction implements EventHandler{
+					public void handle(Event e) {
+						ImageView redoBtn=(ImageView)e.getSource();
+						stateMachineView.changeImageBtn(redoBtn, "/Redo.png");
+					}
+				}
 
 		class DisplayInfoAction implements EventHandler{
+			@SuppressWarnings("unchecked")
 			public void handle(Event e) {
-				//System.out.println(root.getParent(stateDiagram).getInfo());
-				stateMachineView.showDisplayDialog(root.printDecorator());
+				//set State_click Image
+				ImageView infoBtn=(ImageView)e.getSource();
+				stateMachineView.changeImageBtn(infoBtn, "/information_click.png");
+				//System.out.println(root.getParent(stateDiagram).getInfo());				
+				stateMachineView.showDisplayDialog(infoBtn,root.printDecorator(),"/information.png");
 			}
 		}
 }
