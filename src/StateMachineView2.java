@@ -342,4 +342,12 @@ public class StateMachineView2 extends Application{
 		return t;
 		
 	}
+	
+	public void showDisplayDialog(String context){
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Message");
+		alert.setHeaderText("顯示註解");
+		alert.setContentText(context);
+		alert.showAndWait();
+	}
 }

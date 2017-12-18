@@ -1,5 +1,11 @@
 package Model;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import Decorator.Decorator;
+
+
 public abstract class DiagramElement {
 	public double x,y;
 	public String name,style,note;
@@ -36,18 +42,6 @@ public abstract class DiagramElement {
 		throw new UnsupportedOperationException();
 	}
 	
-	//以DiagramElement的生命週期蒐集存放資料(leaf、component)
-	public abstract void printInfo();
-	public static String info="";
-	public static int countSpace=0;
-	public String getInfo() {
-		printInfo();
-		String result=info;
-		info="";
-		countSpace=0;
-		return result;
-	}
-	
 	public void draggedMoveFrom(double mx,double my,double ox,double oy) {
 		orgSceneX = mx;
 	    orgSceneY = my;
@@ -71,4 +65,30 @@ public abstract class DiagramElement {
 			return true;
 		return false;
 	}
+	
+	//以DiagramElement的生命週期蒐集存放資料(leaf、component)
+	public abstract void printInfo();
+	public static String info="";
+	public static int countSpace=0;
+	public String getInfo() {
+		printInfo();
+		String result=info;
+		info="";
+		countSpace=0;
+		return result;
+	}
+	
+	public static Map<DiagramElement,Decorator> decoratorMap=new HashMap<DiagramElement,Decorator>();
+	public String printDecorator() {
+		   java.util.Iterator it = decoratorMap.entrySet().iterator();
+		   String result="";
+		    while (it.hasNext()) {
+		    	 Map.Entry pair = (Map.Entry)it.next();
+		        Decorator decorator=(Decorator) pair.getValue();	
+		        result+=decorator.getInfo()+"\n";
+		    }
+		    return result;
+	}
+	
+	
 }

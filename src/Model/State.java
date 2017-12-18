@@ -9,6 +9,7 @@ public class State extends DiagramElement{
 		//System.out.println(name);
 	}
 
+	
 
 	
 }

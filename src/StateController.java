@@ -2,8 +2,6 @@ import java.util.HashMap;
 import Bridge.ClientBridge;
 import Bridge.StateDiagram_V1_Bridge;
 import Bridge.StateDiagram_V2_Bridge;
-import Decorator.Decorator;
-import Decorator.NoteDecorator;
 import Memento.DiagramCareTaker;
 import Memento.DiagramMemento;
 import Memento.Record;
@@ -20,7 +18,6 @@ import javafx.event.EventType;
 import javafx.scene.Group;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
@@ -54,7 +51,7 @@ public class StateController {
 	HashMap<ArrowLineView,Transition> arrowMap=new HashMap<ArrowLineView,Transition>();
 	HashMap<StateView,State> stateMap=new HashMap<StateView,State>();
 	HashMap<StateDiagramView,StateDiagram> stateDiagramMap=new HashMap<StateDiagramView,StateDiagram>();
-	HashMap<DiagramElement,Decorator> decoratorMap=new HashMap<DiagramElement,Decorator>();
+	
 	
 	StateController(Stage stage){
 		this.stage=stage;
@@ -71,7 +68,7 @@ public class StateController {
 		stateMachineView.addActionStateDiagramBtn(new CreateStateDiagramAction());
 		stateMachineView.addActionUndoBtn(new UndoAction());
 		stateMachineView.addActionRedoBtn(new RedoAction());
-		//stateMachineView.addActionRedoBtn(new DisplayInfoAction());
+		stateMachineView.addActionInfoBtn(new DisplayInfoAction());
 		
 		
 		stateDiagram=clientBridge.createStateDiagram(root);
@@ -101,10 +98,18 @@ public class StateController {
 	}
 	
 	void addNote(DiagramElement de,String note) {
-		Decorator decorate=new NoteDecorator(de,note);
-		decorate.printInfo();
+		/*Decorator decorate = null;
+		if(decoratorMap.containsKey(de)) {
+			decorate=decoratorMap.get(de);
+			decorate=new NoteDecorator(decorate,note);
+		}else {
+			decorate=new NoteDecorator(de,note);
+		}
+		
+
 		System.out.println(decorate.getInfo());
-		decoratorMap.put(de,decorate);
+		decoratorMap.put(de,decorate);*/
+		root.putDecorator(de, note);
 	}
 
 	//Event Class
@@ -153,8 +158,6 @@ public class StateController {
 			
 			currentStateDiagramView.getChildren().add(stateView);
 			save("createState",stateView,state);
-
-			System.out.println(root.getInfo());
 		}
 	}
 	
@@ -168,7 +171,6 @@ public class StateController {
 			currentStateDiagramView=stateDiagramView;
 			stateDiagramMap.put(stateDiagramView, sd);
 			stateDiagram=sd;
-			System.out.println(root.getInfo());
 			save("createStateDiagram",stateDiagramView,sd);
 		}
 	}
@@ -358,14 +360,23 @@ public class StateController {
 					isFirst=true;
 					//重新命名
 				}else if (eventType.equals(MouseEvent.MOUSE_CLICKED)) {	
-					String name=stateMachineView.showIinputDialog();
-					if(name!=null) {
-						String lastName=nameText.getText();
-						nameText.setText(name);
-						currentTransition=(ArrowLineView) nameText.getParent();
-						DiagramElement de=arrowMap.get(currentTransition);				
-						clientBridge.rename(name, de,root,stateDiagram);
-						save("renameTransition",(ArrowLineView)nameText.getParent(),name+","+lastName);
+					Pair pair=stateMachineView.getInfo();
+					
+					if(pair!=null) {
+						String name=(String) pair.getKey();
+						if(!name.equals("")) {
+							String lastName=nameText.getText();
+							nameText.setText(name);
+							currentTransition=(ArrowLineView) nameText.getParent();
+							DiagramElement de=arrowMap.get(currentTransition);				
+							clientBridge.rename(name, de,root,stateDiagram);
+							save("renameTransition",(ArrowLineView)nameText.getParent(),name+","+lastName);
+						}
+						
+						if(!pair.getValue().equals("")){
+							DiagramElement de=arrowMap.get(nameText.getParent());
+							addNote(de,(String)pair.getValue());
+						}
 					}
 				} 
 			}
@@ -397,7 +408,7 @@ public class StateController {
 				Text nameText=((Text) e.getSource());
 				if (eventType.equals(MouseEvent.MOUSE_CLICKED)) {	
 					Pair pair=stateMachineView.getInfo();
-					if(pair.getKey()!=null) {
+					if(pair!=null) {
 						String name=(String) pair.getKey();
 						if(!name.equals("")) {
 							String lastName=nameText.getText();
@@ -406,10 +417,11 @@ public class StateController {
 							clientBridge.rename(name, de,root,stateDiagram);
 							save("renameState",(StateView)nameText.getParent(),name+","+lastName);
 						}
-					}
-					if(pair.getValue()!=null && !pair.getValue().equals("")){
-						DiagramElement de=stateMap.get(nameText.getParent());
-						addNote(de,(String)pair.getValue());
+						
+						if(!pair.getValue().equals("")){
+							DiagramElement de=stateMap.get(nameText.getParent());
+							addNote(de,(String)pair.getValue());
+						}
 					}
 				}
 			}
@@ -425,13 +437,22 @@ public class StateController {
 			if(e.getSource() instanceof Text) {
 				Text nameText=((Text) e.getSource());
 				if (eventType.equals(MouseEvent.MOUSE_CLICKED) ) {	
-					String name=stateMachineView.showIinputDialog();
-					if(name!=null) {
-						String lastName=nameText.getText();
-						nameText.setText(name);
-						DiagramElement de=stateDiagramMap.get(currentStateDiagramView);
-						clientBridge.rename(name, de,root,stateDiagram);
-						save("renameStateDiagram",(StateDiagramView)nameText.getParent(),name+","+lastName);
+					Pair pair=stateMachineView.getInfo();
+					
+					if(pair!=null) {
+						String name=(String) pair.getKey();
+						if(!name.equals("")) {
+							String lastName=nameText.getText();
+							nameText.setText(name);
+							DiagramElement de=stateDiagramMap.get(currentStateDiagramView);
+							clientBridge.rename(name, de,root,stateDiagram);
+							save("renameStateDiagram",(StateDiagramView)nameText.getParent(),name+","+lastName);
+						}
+						
+						if(!pair.getValue().equals("")){
+							DiagramElement de=stateDiagramMap.get(nameText.getParent());
+							addNote(root.getParent(de),(String)pair.getValue());
+						}
 					}
 				}
 				
@@ -544,7 +565,6 @@ public class StateController {
 							break;
 					}
 					root=clientBridge.undo(root);
-					System.out.println(root.getInfo());
 				}
 			} catch (CloneNotSupportedException e) {
 				e.printStackTrace();
@@ -623,37 +643,17 @@ public class StateController {
 								break;
 						}
 						root=clientBridge.redo(root);
-						System.out.println(root.getInfo());
 					}
 				} catch (CloneNotSupportedException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-		
-		
-		/*class AddNoteAction implements EventHandler{
-			@Override
-			public void handle(Event e) {
-				Group g=(Group)e.getSource();
-				if(g instanceof ArrowLineView) {
-					System.out.println("1");
-					
-				}else if(g instanceof StateView){
-					System.out.println("2");
-					
-				}else if(g instanceof StateDiagramView) {
-					
-					
-				}
-			}
-			
-		}*/
-		
-		
+
 		class DisplayInfoAction implements EventHandler{
 			public void handle(Event e) {
-				
+				//System.out.println(root.getParent(stateDiagram).getInfo());
+				stateMachineView.showDisplayDialog(root.printDecorator());
 			}
 		}
 }

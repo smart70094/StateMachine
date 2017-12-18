@@ -9,11 +9,12 @@ public class NoteDecorator extends Decorator{
 		this.note=note;
 	}
 	public void printInfo() {
-		super.printInfo();
 		addNote();
+		super.printInfo();
+		
 	}
 	public void addNote() {
-		super.info=super.info+"["+note+"]";
+		super.info=info+"["+note+"]";
 	}
 	
 }

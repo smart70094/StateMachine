@@ -2,12 +2,18 @@ package Model;
 
 import java.util.ArrayList;
 
+import java.util.Map;
+
+import Decorator.Decorator;
+import Decorator.NoteDecorator;
 import Iterator.DiagramElementIterator;
 import Iterator.Iterator;
+
 
 public class StateDiagram extends DiagramElement{
 	public double width,height;
 	ArrayList<DiagramElement> diagramElementList=new ArrayList<DiagramElement>();
+	
 	public void add(DiagramElement diagramElement) {
 		diagramElementList.add(diagramElement);
 	}
@@ -73,6 +79,16 @@ public class StateDiagram extends DiagramElement{
 		return result;
 	}
 	
+	public void putDecorator(DiagramElement de,String note) {
+		Decorator decorator = null;
+		if(decoratorMap.containsKey(de)) {
+			decorator=decoratorMap.get(de);
+			decorator=new NoteDecorator(decorator,note);
+		}else 
+			decorator=new NoteDecorator(de,note);
+		
+		decoratorMap.put(de, decorator);
+	}
 	
 	
 	public void printInfo() {
@@ -80,16 +96,15 @@ public class StateDiagram extends DiagramElement{
 		while(it.hasNext()) {
 			DiagramElement de=(DiagramElement)it.next();
 			printSpace(countSpace);
-			if(de instanceof StateDiagram) {
-				
+			if(de instanceof StateDiagram) {		
 				info=info+"   "+de.name+"\n";
 				countSpace++;
 			}else {
 				info=info+"   ";
 				//System.out.print(" ");
 			}
-			
 			de.printInfo();
+			
 		}
 		countSpace--;
 	}
@@ -106,5 +121,8 @@ public class StateDiagram extends DiagramElement{
 			info=info+"     ";
 			//System.out.print(" ");
 	}
+	
+	
+	
 	
 }
