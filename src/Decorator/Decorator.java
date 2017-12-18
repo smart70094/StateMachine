@@ -12,5 +12,7 @@ public class Decorator extends DiagramElement{
 	public void printInfo() {
 		de.printInfo();
 	}
+	
+	
 
 }

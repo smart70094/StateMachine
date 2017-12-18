@@ -37,8 +37,16 @@ public abstract class DiagramElement {
 	}
 	
 	//以DiagramElement的生命週期蒐集存放資料(leaf、component)
-	public static String info="";
 	public abstract void printInfo();
+	public static String info="";
+	public static int countSpace=0;
+	public String getInfo() {
+		printInfo();
+		String result=info;
+		info="";
+		countSpace=0;
+		return result;
+	}
 	
 	public void draggedMoveFrom(double mx,double my,double ox,double oy) {
 		orgSceneX = mx;

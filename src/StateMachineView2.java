@@ -33,7 +33,7 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 
 
-public class StateMachineView extends Application{
+public class StateMachineView2 extends Application{
 	private AnchorPane root;
 	private String css;
 	private Scene scene;
@@ -47,12 +47,12 @@ public class StateMachineView extends Application{
 	
 	private ImageView img;
 	
-	static volatile StateMachineView stateView=null;
-	public static StateMachineView getInstance() {
+	static volatile StateMachineView2 stateView=null;
+	public static StateMachineView2 getInstance() {
 		if(stateView==null) {
-			synchronized(StateMachineView.class){
+			synchronized(StateMachineView2.class){
 				if(stateView==null)
-					stateView=new StateMachineView();
+					stateView=new StateMachineView2();
 			}
 		}
 		return stateView;
@@ -64,7 +64,7 @@ public class StateMachineView extends Application{
 		primaryStage.show();
 	}
 	
-	private StateMachineView() {
+	private StateMachineView2() {
 		root=new AnchorPane();
 		//新增介面元件
 		transitionBtn=new Button("Transition");
@@ -236,6 +236,7 @@ public class StateMachineView extends Application{
 			int width=Integer.parseInt(strArr[0]);
 			int height=Integer.parseInt(strArr[1]);
 			int result[]= {width,height};
+			reSizeStr=null;
 			return result;
 		}
 		return null;
@@ -271,5 +272,74 @@ public class StateMachineView extends Application{
 	public String getNote() {
 		showInputNoteDialog();
 		return note;
+	}
+	
+	
+	//-----info
+	Pair pair;
+	void showInputInfoDialog() {
+		// Create the custom dialog.
+		Dialog<Pair<String, String>> dialog = new Dialog<>();
+		dialog.setTitle("Message");
+		dialog.setHeaderText("請輸入 State Diagram 大小");
+
+
+		// Set the button types.
+		ButtonType loginButtonType = new ButtonType("確定", ButtonData.OK_DONE);
+		dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
+
+		// Create the username and password labels and fields.
+		GridPane grid = new GridPane();
+		grid.setHgap(10);
+		grid.setVgap(10);
+		grid.setPadding(new Insets(20, 150, 10, 10));
+
+		TextField name = new TextField();
+		name.setPromptText("name");
+		TextField note = new TextField();
+		note.setPromptText("note");
+
+		grid.add(new Label("Name:"), 0, 0);
+		grid.add(name, 1, 0);
+		grid.add(new Label("Note:"), 0, 1);
+		grid.add(note, 1, 1);
+
+		// Enable/Disable login button depending on whether a username was entered.
+		/*Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
+		loginButton.setDisable(true);
+
+		// Do some validation (using the Java 8 lambda syntax).
+		name.textProperty().addListener((observable, oldValue, newValue) -> {
+		    loginButton.setDisable(newValue.trim().isEmpty());
+		});*/
+
+		dialog.getDialogPane().setContent(grid);
+
+		// Request focus on the username field by default.
+		Platform.runLater(() -> name.requestFocus());
+
+		// Convert the result to a username-password-pair when the login button is clicked.
+		dialog.setResultConverter(dialogButton -> {
+		    if (dialogButton == loginButtonType) {
+		        return new Pair<>(name.getText(), note.getText());
+		    }
+		    return null;
+		});
+
+		Optional<Pair<String, String>> result = dialog.showAndWait();
+		result.ifPresent(set -> {
+			//strInfo=set.getKey() + ","+set.getValue();
+			pair=set;
+		});
+	}
+	
+	Pair getInfo() {
+		showInputInfoDialog();
+		/*String arr[]=strInfo.split(",");
+		strInfo="";*/
+		Pair t=pair;
+		pair=null;
+		return t;
+		
 	}
 }

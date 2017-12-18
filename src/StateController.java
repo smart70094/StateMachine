@@ -2,6 +2,8 @@ import java.util.HashMap;
 import Bridge.ClientBridge;
 import Bridge.StateDiagram_V1_Bridge;
 import Bridge.StateDiagram_V2_Bridge;
+import Decorator.Decorator;
+import Decorator.NoteDecorator;
 import Memento.DiagramCareTaker;
 import Memento.DiagramMemento;
 import Memento.Record;
@@ -32,7 +34,7 @@ public class StateController {
 	DiagramCareTaker diagramCareTaker;
 	//view
 	//主要介面
-	StateMachineView stateMachineView;
+	StateMachineView2 stateMachineView;
 	//選取中的transition
 	ArrowLineView currentTransition;
 	//選取中的transition
@@ -52,6 +54,7 @@ public class StateController {
 	HashMap<ArrowLineView,Transition> arrowMap=new HashMap<ArrowLineView,Transition>();
 	HashMap<StateView,State> stateMap=new HashMap<StateView,State>();
 	HashMap<StateDiagramView,StateDiagram> stateDiagramMap=new HashMap<StateDiagramView,StateDiagram>();
+	HashMap<DiagramElement,Decorator> decoratorMap=new HashMap<DiagramElement,Decorator>();
 	
 	StateController(Stage stage){
 		this.stage=stage;
@@ -60,14 +63,15 @@ public class StateController {
 		root=new StateDiagram();
 	}
 	void start() throws Exception {
-		stateMachineView=StateMachineView.getInstance();
+		stateMachineView=StateMachineView2.getInstance();
 		stateMachineView.start(stage);
 		//register event for each button
 		stateMachineView.addActionForTransitionBtn(new CreateTransitionAction());
 		stateMachineView.addActionStateBtn(new CreateStateAction());
 		stateMachineView.addActionStateDiagramBtn(new CreateStateDiagramAction());
 		stateMachineView.addActionUndoBtn(new UndoAction());
-		stateMachineView.addActionRedoBtn(new DisplayInfoAction());
+		stateMachineView.addActionRedoBtn(new RedoAction());
+		//stateMachineView.addActionRedoBtn(new DisplayInfoAction());
 		
 		
 		stateDiagram=clientBridge.createStateDiagram(root);
@@ -96,6 +100,12 @@ public class StateController {
 		diagramCareTaker.addDiagramViewMemento(r.createMemento());
 	}
 	
+	void addNote(DiagramElement de,String note) {
+		Decorator decorate=new NoteDecorator(de,note);
+		decorate.printInfo();
+		System.out.println(decorate.getInfo());
+		decoratorMap.put(de,decorate);
+	}
 
 	//Event Class
 	
@@ -109,7 +119,6 @@ public class StateController {
 			//register arrowLine
 			arrowView.addEventHandler(MouseEvent.MOUSE_PRESSED, new SelectTransitionAction());
 			arrowView.addEventHandler(MouseEvent.MOUSE_RELEASED, new SelectTransitionAction());
-			arrowView.addEventHandler(MouseEvent.MOUSE_CLICKED, new AddNoteAction());
 			
 			//register move line
 			arrowView.addMoveForTransitionEvent(new MoveTransitionElementAction());
@@ -138,7 +147,6 @@ public class StateController {
 			stateView.addEventHandler(MouseEvent.MOUSE_PRESSED, new SelectStateAction());
 			stateView.addEventHandler(MouseEvent.MOUSE_RELEASED, new SelectStateAction());
 			stateView.addEventHandler(MouseEvent.MOUSE_DRAGGED, new MoveStateAction());
-			stateView.addEventHandler(MouseEvent.MOUSE_CLICKED, new AddNoteAction());
 			
 			stateView.addRenameForTextEvent(new RenameForState());
 			stateMap.put(stateView, state);
@@ -170,7 +178,6 @@ public class StateController {
 		stateDiagramView.addEventHandler(MouseEvent.MOUSE_PRESSED, new SelectStateDiagramAction());
 		stateDiagramView.addEventHandler(MouseEvent.MOUSE_DRAGGED, new MoveStateDiagramAction());
 		stateDiagramView.addEventHandler(MouseEvent.MOUSE_CLICKED, new DoubleClickStateDiagramAction());
-		stateDiagramView.addEventHandler(MouseEvent.MOUSE_CLICKED, new AddNoteAction());
 		stateDiagramView.addMoveForTextEvent(new RenameForStateDiagram());
 		return stateDiagramView;
 	}
@@ -389,13 +396,20 @@ public class StateController {
 			if(e.getSource() instanceof Text) {
 				Text nameText=((Text) e.getSource());
 				if (eventType.equals(MouseEvent.MOUSE_CLICKED)) {	
-					String name=stateMachineView.showIinputDialog();
-					if(name!=null) {
-						String lastName=nameText.getText();
-						nameText.setText(name);
+					Pair pair=stateMachineView.getInfo();
+					if(pair.getKey()!=null) {
+						String name=(String) pair.getKey();
+						if(!name.equals("")) {
+							String lastName=nameText.getText();
+							nameText.setText(name);
+							DiagramElement de=stateMap.get(nameText.getParent());
+							clientBridge.rename(name, de,root,stateDiagram);
+							save("renameState",(StateView)nameText.getParent(),name+","+lastName);
+						}
+					}
+					if(pair.getValue()!=null && !pair.getValue().equals("")){
 						DiagramElement de=stateMap.get(nameText.getParent());
-						clientBridge.rename(name, de,root,stateDiagram);
-						save("renameState",(StateView)nameText.getParent(),name+","+lastName);
+						addNote(de,(String)pair.getValue());
 					}
 				}
 			}
@@ -617,27 +631,26 @@ public class StateController {
 			}
 		}
 		
-		class AddNoteAction implements EventHandler{
-			boolean check=false;
+		
+		/*class AddNoteAction implements EventHandler{
 			@Override
 			public void handle(Event e) {
 				Group g=(Group)e.getSource();
 				if(g instanceof ArrowLineView) {
 					System.out.println("1");
-					check=true;
+					
 				}else if(g instanceof StateView){
 					System.out.println("2");
-					check=true;
+					
 				}else if(g instanceof StateDiagramView) {
-					MouseButton button = ((MouseEvent) e).getButton();
-					if(button==MouseButton.PRIMARY && !check) {
-						System.out.println("3");
-					}
+					
 					
 				}
 			}
 			
-		}
+		}*/
+		
+		
 		class DisplayInfoAction implements EventHandler{
 			public void handle(Event e) {
 				

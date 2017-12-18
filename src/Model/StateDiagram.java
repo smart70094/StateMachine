@@ -73,7 +73,7 @@ public class StateDiagram extends DiagramElement{
 		return result;
 	}
 	
-	static int countSpace=0;
+	
 	
 	public void printInfo() {
 		Iterator it=new DiagramElementIterator(diagramElementList);
