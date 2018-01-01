@@ -11,7 +11,7 @@ public class StateDiagram_V2_Supervisor  extends StateDiagramSupervisor{
 
 	@Override
 	public Object construct() {
-		builder.setElements(new StateDiagram_V2());
+		builder.setElements("version2");
 		builder.setShape(600,600);
 		builder.setPosition(100,70);
 		builder.setName("StateDiagram");

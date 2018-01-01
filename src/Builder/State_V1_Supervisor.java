@@ -10,7 +10,7 @@ public class State_V1_Supervisor extends StateSupervisor{
 
 	@Override
 	public Object construct() {
-		builder.setElements(new State_V1());
+		builder.setElements("version1");
 		builder.setShape(50);
 		builder.setPosition(500,200);
 		builder.setName("State");

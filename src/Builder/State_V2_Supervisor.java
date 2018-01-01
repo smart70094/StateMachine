@@ -10,7 +10,7 @@ public class State_V2_Supervisor extends DiagramElementSupervisor{
 	}
 	@Override
 	public Object construct() {
-		builder.setElements(new State_V2());
+		builder.setElements("version2");
 		builder.setShape(50);
 		builder.setPosition(500,200);
 		builder.setName("State");

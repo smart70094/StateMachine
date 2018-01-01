@@ -9,7 +9,7 @@ public class Transition_V2_Supervisor extends TransitionSupervisor{
 	}
 	
 	public Object construct() {
-		builder.setElements(new Transition_V2());
+		builder.setElements("version2");
 		builder.setShape(100, 10, 300, 10);
 		builder.setPosition(500,200);
 		builder.setName("Transition");

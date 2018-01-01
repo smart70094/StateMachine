@@ -2,12 +2,14 @@ package Builder;
 
 import Model.DiagramElement;
 import Model.StateDiagram;
+import Model.StateDiagram_V1;
+import Model.StateDiagram_V2;
 
 public class StateDiagramBuilder extends DiagramElementBuilder{
 	StateDiagram result;
 	@Override
-	void setElements(DiagramElement de) {
-		result=(StateDiagram) de;
+	void setElements(String version) {
+		result=(version.equals("version1")?new StateDiagram_V1():new StateDiagram_V2());
 	}
 
 	@Override

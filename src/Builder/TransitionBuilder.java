@@ -1,8 +1,11 @@
 package Builder;
 
 import Model.DiagramElement;
+import Model.State_V1;
+import Model.State_V2;
 import Model.Transition;
 import Model.Transition_V1;
+import Model.Transition_V2;
 
 public class TransitionBuilder extends DiagramElementBuilder{
 	Transition result;
@@ -43,8 +46,8 @@ public class TransitionBuilder extends DiagramElementBuilder{
 	}
 
 	@Override
-	void setElements(DiagramElement de) {
+	void setElements(String version) {
 		// TODO Auto-generated method stub
-		result=(Transition)de;
+		result=(version.equals("version1")?new Transition_V1():new Transition_V2());
 	}
 }
